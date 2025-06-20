@@ -40,10 +40,10 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.push('/splash')}>
-        <Ionicons name="arrow-back" size={24} color="#000000" />
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={24} color="#333" />
       </TouchableOpacity>
-
+      
       {/* Logo */}
       <Image
         source={require('../assets/images/fertisense-logo.png')}
