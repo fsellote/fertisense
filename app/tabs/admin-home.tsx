@@ -55,7 +55,7 @@ export default function AdminHomeScreen() {
       {/* Edit Fertilizer Price */}
       <TouchableOpacity
         style={[styles.card, { backgroundColor: '#00691D' }]}
-        onPress={() => router.push('/tabs/edit-price')}
+        onPress={() => router.push('/edit-price')}
       >
         <Image
           source={require('../../assets/images/ferti-price.png')}
@@ -104,12 +104,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start', 
     borderRadius: 25,
     padding: 13,
-    marginBottom: 17,
+    marginBottom: 19,
     elevation: 12
   },
   cardImage: {
     width: 120,
-    height: 80,
+    height: 90,
     resizeMode: 'cover',
     borderBottomLeftRadius: 23,
     marginTop: 3,            

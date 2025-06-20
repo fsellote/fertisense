@@ -138,9 +138,9 @@ export default function RecommendationScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
+    padding: 23,
     backgroundColor: '#fff',
-    flexGrow: 1,
+    flexGrow: 4,
   },
   logo: {
     width: 150,
@@ -191,8 +191,8 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   divider: {
-    height: 12,
-    backgroundColor: '#8BC34A',
+    height: 1,
+    backgroundColor: '#000',
     marginVertical: 20,
     borderRadius: 8,
   },

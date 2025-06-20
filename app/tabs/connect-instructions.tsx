@@ -92,10 +92,10 @@ const styles = StyleSheet.create({
   },
   box: {
     width: '100%',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: '#4CAF50',
     borderRadius: 12,
-    padding: 16,
+    padding: 19,
     backgroundColor: '#f5fdf5',
     marginBottom: 40,
   },
@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#2e7d32',
+    top: 35,
     paddingVertical: 13,
     paddingHorizontal: 100,
     borderRadius: 50,
