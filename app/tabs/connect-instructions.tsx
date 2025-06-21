@@ -79,16 +79,16 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   logo: {
-    width: 260,
+    width: 190,
     height: 180,
-    marginBottom: 20,
-    marginTop: -40
+    marginBottom: 0,
+    marginTop: 10
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#2e7d32',
-    marginBottom: 10,
+    marginBottom: 15,
   },
   box: {
     width: '100%',
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#2e7d32',
-    top: 35,
+    top: 20,
     paddingVertical: 13,
     paddingHorizontal: 100,
     borderRadius: 50,

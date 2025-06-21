@@ -4,7 +4,7 @@
     "slug": "fertisense",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/fertisense-logo.png", 
+    "icon": "../../assets/images/fertisense-logo.png", 
     "scheme": "fertisense",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
