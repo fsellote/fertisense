@@ -2,25 +2,26 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Image,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const router = useRouter();
 
-  // ✅ State hooks
+  // ✅ State Hooks
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
-  // ✅ Validation logic
-  const handleLogin = () => {
-    if (!email || !password) {
+  const handleRegister = () => {
+    if (!name || !email || !password || !confirmPassword) {
       setError('Please fill in all fields.');
       return;
     }
@@ -31,14 +32,14 @@ export default function LoginScreen() {
       return;
     }
 
-    // ✅ Passed validation
-    setError('');
-    if (email === 'admin@example.com') {
-      router.replace('/tabs/admin-home');
-    } else {
-      router.replace('/(stakeholder)/stakeholder-home');
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
     }
 
+    setError('');
+    // ✅ Proceed to login screen or stakeholder dashboard
+    router.replace('/login');
   };
 
   return (
@@ -47,7 +48,7 @@ export default function LoginScreen() {
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Ionicons name="arrow-back" size={24} color="#333" />
       </TouchableOpacity>
-      
+
       {/* Logo */}
       <Image
         source={require('../assets/images/fertisense-logo.png')}
@@ -57,24 +58,31 @@ export default function LoginScreen() {
 
       {/* Tabs */}
       <View style={styles.tabContainer}>
-        <Text style={styles.tabActive}>Log In</Text>
-        <TouchableOpacity onPress={() => router.push('/register')}>
-          <Text style={styles.tabInactive}>Sign Up</Text>
+        <TouchableOpacity onPress={() => router.push('/login')}>
+          <Text style={styles.tabInactive}>Log In</Text>
         </TouchableOpacity>
+        <Text style={styles.tabActive}>Sign Up</Text>
       </View>
 
-      {/* Email */}
-      <Text style={styles.label}>Your Email</Text>
+      {/* Input Fields */}
+      <Text style={styles.label}>Full Name</Text>
       <TextInput
         style={styles.input}
-        placeholder="you@gmail.com"
+        placeholder="Juan Dela Cruz"
+        value={name}
+        onChangeText={setName}
+      />
+
+      <Text style={styles.label}>Email Address</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="you@example.com"
         keyboardType="email-address"
         autoCapitalize="none"
         value={email}
         onChangeText={setEmail}
       />
 
-      {/* Password */}
       <Text style={styles.label}>Password</Text>
       <TextInput
         style={styles.input}
@@ -84,24 +92,28 @@ export default function LoginScreen() {
         onChangeText={setPassword}
       />
 
-      {/* Error Message */}
+      <Text style={styles.label}>Confirm Password</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="********"
+        secureTextEntry
+        value={confirmPassword}
+        onChangeText={setConfirmPassword}
+      />
+
+      {/* Error */}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      {/* Forgot Password */}
-      <TouchableOpacity onPress={() => router.push('/forgot-password')}>
-        <Text style={styles.forgotPassword}>Forgot password?</Text>
-      </TouchableOpacity>
-
-      {/* Log In Button */}
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log in</Text>
+      {/* Sign Up Button */}
+      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+        <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Don’t have an account?</Text>
-        <TouchableOpacity onPress={() => router.push('/register')}>
-          <Text style={styles.footerLink}> Sign up</Text>
+        <Text style={styles.footerText}>Already have an account?</Text>
+        <TouchableOpacity onPress={() => router.push('/login')}>
+          <Text style={styles.footerLink}> Log in</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -137,7 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#2e7d32',
-    marginRight: 16,
+    marginLeft: 16,
     borderBottomWidth: 2,
     borderBottomColor: '#2e7d32',
     paddingBottom: 4,
@@ -159,18 +171,13 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 16,
   },
-  forgotPassword: {
-    color: '#1976d2',
-    textAlign: 'right',
-    marginBottom: 24,
-  },
-  loginButton: {
+  registerButton: {
     backgroundColor: '#2e7d32',
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 50,
     width: '100%',
-    marginBottom: 50,
+    marginBottom: 40,
   },
   buttonText: {
     color: '#fff',

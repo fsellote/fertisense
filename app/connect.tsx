@@ -50,12 +50,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: 55,
-    left: 20,
+    top: 90,
+    left: 25,
     zIndex: 10,
   },
   connectImage: {
-    width: 290,
+    width: 220,
     height: 220,
     marginBottom: 30,
     marginTop: -30
@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
     marginTop: -30
   },
   warningIcon: {
-    width: 60,
-    height: 40,
+    width: 35,
+    height: 30,
     marginBottom: 8,
   },
   warningText: {

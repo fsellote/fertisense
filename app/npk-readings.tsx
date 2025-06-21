@@ -55,48 +55,50 @@ export default function NPKReadingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 80,
+    paddingTop: 30,
     alignItems: 'center',
     backgroundColor: '#fff',
-    paddingHorizontal: 24,
+    paddingHorizontal: 25,
   },
   logo: {
-    width: 180,
-    height: 80,
+    width: 250,
+    height: 150,
     marginBottom: 30,
   },
   npkContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-    marginBottom: 30,
+    marginBottom: 60,
   },
   npkBox: {
     flex: 1,
-    height: 120,
-    borderRadius: 10,
+    height: 230,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 6,
+    marginHorizontal: 10,
   },
   npkLabel: {
-    fontSize: 22,
+    fontSize: 30,
     color: '#fff',
     fontWeight: 'bold',
+    bottom: 25
   },
   npkValue: {
     fontSize: 20,
     color: '#fff',
-    marginVertical: 4,
+    marginVertical: 0,
   },
   npkUnit: {
     fontSize: 13,
     color: '#fff',
   },
   moistureLabel: {
-    fontSize: 15,
+    fontSize: 19,
     alignSelf: 'flex-start',
-    marginBottom: 6,
+    fontWeight: 'bold',
+    marginBottom: 9   ,
     color: '#333',
   },
   moistureBarBackground: {
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ccc',
     borderRadius: 5,
     overflow: 'hidden',
-    marginBottom: 6,
+    marginBottom: 12,
   },
   moistureBarFill: {
     height: '100%',
@@ -114,9 +116,10 @@ const styles = StyleSheet.create({
   },
   moisturePercent: {
     alignSelf: 'flex-start',
-    fontSize: 16,
+    fontSize: 30,
+    fontWeight: 'bold',
     color: '#2e7d32',
-    marginBottom: 30,
+    marginBottom: 60,
   },
   recommendButton: {
     backgroundColor: '#2e7d32',

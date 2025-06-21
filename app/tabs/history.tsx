@@ -40,7 +40,7 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   container: { padding: 24 },
   header: { fontSize: 24, fontWeight: 'bold', marginBottom: 16, marginTop: 90 },
-  empty: { textAlign: 'center', fontSize: 20, color: '#888', marginTop: 5 },
+  empty: { textAlign: 'center', fontSize: 20, color: '#888', marginTop: 50 },
 card: {
   backgroundColor: '#e8f5e9',
   padding: 15,
