@@ -1,21 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ConnectInstructionsScreen() {
   const router = useRouter();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+
       {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.replace('/(stakeholder)/stakeholder-home')} // ✅ corrected path
+      >
         <Ionicons name="arrow-back" size={24} color="#333" />
       </TouchableOpacity>
 
@@ -29,66 +26,30 @@ export default function ConnectInstructionsScreen() {
       {/* Title */}
       <Text style={styles.title}>Connect to Device</Text>
 
-      {/* Instruction Box */}
+      {/* Green-bordered box */}
       <View style={styles.box}>
         <Text style={styles.boxIntro}>
           Bago makita ang datos, ikonekta muna ang device sa iyong cellphone.
         </Text>
 
-        {/* Step 1 */}
+        {/* Steps with Icons */}
         <View style={styles.stepRow}>
-          <View style={styles.iconWrapper}>
-            <Image
-              source={require('../../assets/images/power.png')}
-              style={styles.iconPower}
-            />
-          </View>
+          <Image source={require('../../assets/images/power.png')} style={styles.icon} />
           <Text style={styles.stepText}>I-on ang iyong sensor device.</Text>
         </View>
 
-        {/* Step 2 */}
         <View style={styles.stepRow}>
-          <View style={styles.iconWrapper}>
-            <Image
-              source={require('../../assets/images/bluetooth.png')}
-              style={styles.iconBluetooth}
-            />
-          </View>
+          <Image source={require('../../assets/images/bluetooth.png')} style={styles.icon} />
           <Text style={styles.stepText}>Buksan ang Bluetooth ng iyong cellphone.</Text>
         </View>
 
-        {/* Step 3 */}
         <View style={styles.stepRow}>
-          <View style={styles.iconWrapper}>
-            <Image
-              source={require('../../assets/images/sensor.png')}
-              style={styles.iconSensor}
-            />
-          </View>
+          <Image source={require('../../assets/images/sensor.png')} style={styles.icon} />
           <Text style={styles.stepText}>Pindutin ang ‘Connect’ upang hanapin ang device.</Text>
         </View>
 
-        {/* Step 4 */}
         <View style={styles.stepRow}>
-          <View style={styles.iconWrapper}>
-            <Image
-              source={require('../../assets/images/rice.png')}
-              style={styles.iconRiceType}
-            />
-          </View>
-          <Text style={styles.stepText}>
-            Pumili kung anong uri ng palay ang iyong itatanim.
-          </Text>
-        </View>
-
-        {/* Step 5 */}
-        <View style={styles.stepRow}>
-          <View style={styles.iconWrapper}>
-            <Image
-              source={require('../../assets/images/check.png')}
-              style={styles.iconCheck}
-            />
-          </View>
+          <Image source={require('../../assets/images/check.png')} style={styles.icon} />
           <Text style={styles.stepText}>
             Hintaying kumonekta o makita ang ‘Successful’ na status.
           </Text>
@@ -98,7 +59,7 @@ export default function ConnectInstructionsScreen() {
       {/* Proceed Button */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/select-rice-type')}
+        onPress={() => router.push('/(stakeholder)/stakeholder-home')} // ✅ optional: or navigate to connection logic
       >
         <Text style={styles.buttonText}>Magpatuloy</Text>
       </TouchableOpacity>
@@ -123,7 +84,7 @@ const styles = StyleSheet.create({
     width: 190,
     height: 180,
     marginBottom: 0,
-    marginTop: 10,
+    marginTop: 10
   },
   title: {
     fontSize: 20,
@@ -153,42 +114,18 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 14,
   },
-  iconWrapper: {
-    width: 35,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
+  icon: {
+    width: 25,
+    height: 24,
+    marginRight: 12,
+    marginTop: -1,
+    resizeMode: 'contain',
   },
   stepText: {
     fontSize: 16,
     color: '#444',
     flex: 1,
     flexWrap: 'wrap',
-  },
-  iconPower: {
-    width: 25,
-    height: 25,
-    resizeMode: 'contain',
-  },
-  iconBluetooth: {
-    width: 24,
-    height: 24,
-    resizeMode: 'contain',
-  },
-  iconSensor: {
-    width: 30,
-    height: 30,
-    resizeMode: 'contain',
-  },
-  iconRiceType: {
-    width: 20,
-    height: 27,
-    resizeMode: 'contain',
-  },
-  iconCheck: {
-    width: 30,
-    height: 40,
-    resizeMode: 'contain',
   },
   button: {
     backgroundColor: '#2e7d32',

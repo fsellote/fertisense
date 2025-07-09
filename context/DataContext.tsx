@@ -1,10 +1,10 @@
 import React, { createContext, ReactNode, useContext, useState } from 'react';
 
-// ✅ 1. Define your types
+// Type Definitions
 export type Farmer = {
   id: string;
   name: string;
-  code: string; // <-- Added this to fix the `item.code` error
+  code: string;
 };
 
 export type Reading = {
@@ -14,26 +14,28 @@ export type Reading = {
   n: number;
   p: number;
   k: number;
-  recommendation: string[]; // You can change this to string[] | undefined if needed
+  recommendation: string[];
 };
 
-// ✅ 2. Context type
+// Define the context shape
 type DataContextType = {
   farmers: Farmer[];
   addFarmer: (farmer: Farmer) => void;
   readings: Reading[];
   addReading: (reading: Reading) => void;
+  deleteReading: (index: number) => void;
+  updateReading: (index: number, updated: Reading) => void;
 };
 
-// ✅ 3. Create context with type
+// Create context
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// ✅ 4. Props for provider
+// Provider props
 type DataProviderProps = {
   children: ReactNode;
 };
 
-// ✅ 5. The actual context provider
+// Context Provider
 export const DataProvider = ({ children }: DataProviderProps) => {
   const [farmers, setFarmers] = useState<Farmer[]>([]);
   const [readings, setReadings] = useState<Reading[]>([]);
@@ -46,18 +48,35 @@ export const DataProvider = ({ children }: DataProviderProps) => {
     setReadings((prev) => [...prev, reading]);
   };
 
+  const deleteReading = (index: number) => {
+    setReadings((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateReading = (index: number, updated: Reading) => {
+    setReadings((prev) => prev.map((item, i) => (i === index ? updated : item)));
+  };
+
   return (
-    <DataContext.Provider value={{ farmers, addFarmer, readings, addReading }}>
+    <DataContext.Provider
+      value={{
+        farmers,
+        addFarmer,
+        readings,
+        addReading,
+        deleteReading,
+        updateReading,
+      }}
+    >
       {children}
     </DataContext.Provider>
   );
 };
 
-// ✅ 6. Hook to consume the context
+// Hook to use context
 export const useData = (): DataContextType => {
   const context = useContext(DataContext);
   if (!context) {
-    throw new Error("useData must be used within a DataProvider");
+    throw new Error('useData must be used within a DataProvider');
   }
   return context;
 };

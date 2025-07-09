@@ -2,34 +2,43 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Image,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
+import { useAuth } from '../context/AuthContext';
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { login } = useAuth();
 
-  // ✅ State Hooks
   const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [farmLocation, setFarmLocation] = useState('');
+  const [mobile, setMobile] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleRegister = () => {
-    if (!name || !email || !password || !confirmPassword) {
-      setError('Please fill in all fields.');
+    if (!name || !address || !farmLocation || !mobile || !password || !confirmPassword) {
+      setError('Please fill in all required fields.');
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email.');
-      return;
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setError('Please enter a valid email.');
+        return;
+      }
     }
 
     if (password !== confirmPassword) {
@@ -38,93 +47,144 @@ export default function RegisterScreen() {
     }
 
     setError('');
-    // ✅ Proceed to login screen or stakeholder dashboard
-    router.replace('/login');
+
+    login({
+      name,
+      email,
+      role: 'stakeholder',
+    });
+
+    router.replace('/(stakeholder)/stakeholder-home');
   };
 
   return (
-    <View style={styles.container}>
-      {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#333" />
-      </TouchableOpacity>
-
-      {/* Logo */}
-      <Image
-        source={require('../assets/images/fertisense-logo.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-
-      {/* Tabs */}
-      <View style={styles.tabContainer}>
-        <TouchableOpacity onPress={() => router.push('/login')}>
-          <Text style={styles.tabInactive}>Log In</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Back Button */}
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
-        <Text style={styles.tabActive}>Sign Up</Text>
-      </View>
 
-      {/* Input Fields */}
-      <Text style={styles.label}>Full Name</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Juan Dela Cruz"
-        value={name}
-        onChangeText={setName}
-      />
+        {/* Logo */}
+        <Image
+          source={require('../assets/images/fertisense-logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
 
-      <Text style={styles.label}>Email Address</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="you@example.com"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
+        {/* Tabs */}
+        <View style={styles.tabContainer}>
+          <TouchableOpacity onPress={() => router.push('/login')}>
+            <Text style={styles.tabInactive}>Log In</Text>
+          </TouchableOpacity>
+          <Text style={styles.tabActive}>Sign Up</Text>
+        </View>
 
-      <Text style={styles.label}>Password</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="********"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        {/* Full Name */}
+        <Text style={styles.label}>Full Name *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Juan Dela Cruz"
+          value={name}
+          onChangeText={setName}
+        />
 
-      <Text style={styles.label}>Confirm Password</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="********"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
+        {/* Address + Farm Location */}
+        <View style={styles.row}>
+          <View style={{ flex: 1, marginRight: 8 }}>
+            <Text style={styles.label}>Address *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Brgy. Poblacion"
+              value={address}
+              onChangeText={setAddress}
+            />
+          </View>
+          <View style={{ flex: 1, marginLeft: 8 }}>
+            <Text style={styles.label}>Farm Location *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Valencia City"
+              value={farmLocation}
+              onChangeText={setFarmLocation}
+            />
+          </View>
+        </View>
 
-      {/* Error */}
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        {/* Mobile */}
+        <Text style={styles.label}>Mobile Number *</Text>
+        <View style={styles.mobileRow}>
+          <View style={styles.prefixBox}>
+            <Text style={styles.prefixText}>+63</Text>
+          </View>
+          <TextInput
+            style={styles.mobileInput}
+            placeholder="9123456789"
+            keyboardType="phone-pad"
+            value={mobile}
+            onChangeText={setMobile}
+          />
+        </View>
 
-      {/* Sign Up Button */}
-      <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
+        {/* Email */}
+        <Text style={styles.label}>Email (optional)</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="you@example.com"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          value={email}
+          onChangeText={setEmail}
+        />
 
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Already have an account?</Text>
-        <TouchableOpacity onPress={() => router.push('/login')}>
-          <Text style={styles.footerLink}> Log in</Text>
+        {/* Password */}
+        <Text style={styles.label}>Password *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="********"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        {/* Confirm Password */}
+        <Text style={styles.label}>Confirm Password *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="********"
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+        />
+
+        {/* Error */}
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+        {/* Register Button */}
+        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Create Account</Text>
         </TouchableOpacity>
-      </View>
-    </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Already have an account?</Text>
+          <TouchableOpacity onPress={() => router.push('/login')}>
+            <Text style={styles.footerLink}> Log in</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    padding: 24,
     backgroundColor: '#fff',
-    paddingHorizontal: 24,
+    flexGrow: 1,
     justifyContent: 'center',
   },
   backButton: {
@@ -134,70 +194,106 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   logo: {
-    width: 200,
-    height: 150,
+    width: 160,
+    height: 100,
     alignSelf: 'center',
-    marginBottom: 4,
-    marginTop: -130,
+    marginTop: 40,
+    marginBottom: 10,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 15,
   },
   tabActive: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#2e7d32',
     marginLeft: 16,
     borderBottomWidth: 2,
     borderBottomColor: '#2e7d32',
-    paddingBottom: 4,
+    paddingBottom: 1,
   },
   tabInactive: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#999',
-    paddingBottom: 4,
+    paddingBottom: 3,
   },
   label: {
-    marginBottom: 4,
     fontSize: 14,
-    color: '#444',
+    marginBottom: 3,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 12,
+    fontSize: 14,
+    marginBottom: 9,
+  },
+  row: {
+    flexDirection: 'row',
+    marginBottom: 9,
+  },
+  mobileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
+  },
+  prefixBox: {
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  prefixText: {
+    fontSize: 14,
+    color: '#333',
+  },
+  mobileInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderLeftWidth: 0,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    padding: 12,
+    fontSize: 14,
   },
   registerButton: {
     backgroundColor: '#2e7d32',
     paddingVertical: 14,
-    paddingHorizontal: 40,
     borderRadius: 50,
-    width: '100%',
-    marginBottom: 40,
+    marginTop: 10,
   },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontWeight: 'bold',
+    fontSize: 15,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    fontSize: 13,
+    marginBottom: 8,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    marginTop: 20,
   },
   footerText: {
     color: '#444',
+    fontSize: 13,
   },
   footerLink: {
     color: '#1976d2',
     fontWeight: '600',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 16,
-    textAlign: 'center',
+    fontSize: 13,
   },
 });
