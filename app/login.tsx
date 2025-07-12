@@ -110,9 +110,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 200,
-    height: 150,
+    height: 200,
     alignSelf: 'center',
-    marginBottom: 4,
+    top: 12,
     marginTop: -130,
   },
   tabContainer: {

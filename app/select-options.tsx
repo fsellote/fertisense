@@ -1,125 +1,110 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 export default function SelectOptionsScreen() {
   const router = useRouter();
 
   const [riceType, setRiceType] = useState<string | null>(null);
-  const [cropStyle, setCropStyle] = useState<string>('');
-  const [soilType, setSoilType] = useState<string>('');
-  const [season, setSeason] = useState<string>('');
-
-  const riceTypes = [
-    { label: 'Hybrid', value: 'hybrid' },
-    { label: 'Inbred', value: 'inbred' },
-    { label: 'Pareho', value: 'both' }
-  ];
-
-  const cropStyles = ['Irrigated', 'Rainfed', 'Pareho'];
-  const soilTypes = ['Light Soils', 'Med-Heavy Soils'];
-  const seasons = ['Wet Season', 'Dry Season'];
+  const [cropStyle, setCropStyle] = useState('');
+  const [soilType, setSoilType] = useState('');
+  const [season, setSeason] = useState('');
 
   const allSelected = riceType && cropStyle && soilType && season;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Decorative Top Arc (No Image) */}
-      <View style={styles.topArc}></View>
+      {/* Top Arc with Back Button */}
+      <View style={styles.topArc}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/tabs/connect-instructions')}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.pageTitle}>Rekomendasyon ng Pataba</Text>
+      </View>
 
-      {/* Header */}
-      <Text style={styles.headerTitle}>Rekomendasyon ng Pataba</Text>
       <Text style={styles.subHeader}>
-        Pumili ng uri ng palay at iba pang detalye ng iyong sakahan.
+        Pumili ng mga impormasyon tungkol sa iyong sakahan upang makabuo ng tamang rekomendasyon.
       </Text>
 
-      {/* Main Card Container */}
-      <View style={styles.cardBox}>
-        {/* RICE TYPE BUTTONS */}
-        <Text style={styles.sectionLabel}>Uri ng Palay</Text>
-        {riceTypes.map((type) => (
-          <TouchableOpacity
-            key={type.value}
-            style={[
-              styles.optionButton,
-              riceType === type.value && styles.selectedButton
-            ]}
-            onPress={() => setRiceType(type.value)}
-          >
-            <Text
-              style={[
-                styles.optionText,
-                riceType === type.value && styles.selectedText
-              ]}
-            >
-              {type.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+      {/* Card Container */}
+      <View style={styles.sectionContainer}>
+        {/* Section 1: Uri ng Palay */}
+        <Text style={styles.sectionLabel}>🌾 Uri ng Palay</Text>
+        <View style={styles.optionsRow}>
+          {['Hybrid', 'Inbred', 'Pareho'].map((type) => {
+            const selected = riceType === type.toLowerCase();
+            return (
+              <TouchableOpacity
+                key={type}
+                style={[styles.chip, selected && styles.chipSelected]}
+                onPress={() => setRiceType(type.toLowerCase())}
+              >
+                <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+                  {type}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-        {/* CROP STYLE */}
-        <Text style={styles.sectionLabel}>Estilo ng Sakahan</Text>
+        {/* Section 2: Estilo ng Sakahan */}
+        <Text style={styles.sectionLabel}>💧 Estilo ng Sakahan</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             selectedValue={cropStyle}
-            onValueChange={(value: string) => setCropStyle(value)}
+            onValueChange={setCropStyle}
+            style={Platform.OS === 'android' ? styles.picker : {}}
           >
             <Picker.Item label="Pumili..." value="" />
-            {cropStyles.map((style) => (
-              <Picker.Item key={style} label={style} value={style.toLowerCase()} />
-            ))}
+            <Picker.Item label="Irrigated" value="irrigated" />
+            <Picker.Item label="Rainfed" value="rainfed" />
+            <Picker.Item label="Pareho" value="pareho" />
           </Picker>
         </View>
 
-        {/* SOIL TYPE */}
-        <Text style={styles.sectionLabel}>Uri ng Lupa</Text>
+        {/* Section 3: Uri ng Lupa */}
+        <Text style={styles.sectionLabel}>🧱 Uri ng Lupa</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             selectedValue={soilType}
-            onValueChange={(value: string) => setSoilType(value)}
+            onValueChange={setSoilType}
+            style={Platform.OS === 'android' ? styles.picker : {}}
           >
             <Picker.Item label="Pumili..." value="" />
-            {soilTypes.map((type) => (
-              <Picker.Item key={type} label={type} value={type.toLowerCase()} />
-            ))}
+            <Picker.Item label="Light Soils" value="light soils" />
+            <Picker.Item label="Med-Heavy Soils" value="med-heavy soils" />
           </Picker>
         </View>
 
-        {/* SEASON */}
-        <Text style={styles.sectionLabel}>Panahon ng Pagtatanim</Text>
+        {/* Section 4: Panahon */}
+        <Text style={styles.sectionLabel}>⛅ Panahon ng Pagtatanim</Text>
         <View style={styles.pickerWrapper}>
           <Picker
             selectedValue={season}
-            onValueChange={(value: string) => setSeason(value)}
+            onValueChange={setSeason}
+            style={Platform.OS === 'android' ? styles.picker : {}}
           >
             <Picker.Item label="Pumili..." value="" />
-            {seasons.map((s) => (
-              <Picker.Item key={s} label={s} value={s.toLowerCase()} />
-            ))}
+            <Picker.Item label="Wet Season" value="wet season" />
+            <Picker.Item label="Dry Season" value="dry season" />
           </Picker>
         </View>
       </View>
 
-      {/* PROCEED BUTTON */}
+      {/* Proceed Button */}
       <TouchableOpacity
         style={[styles.proceedButton, !allSelected && { backgroundColor: '#ccc' }]}
         disabled={!allSelected}
-        onPress={() => {
-          console.log({
-            riceType,
-            cropStyle,
-            soilType,
-            season
-          });
-          router.push('/recommendation');
-        }}
+        onPress={() => router.push('/sensor-reading')}
       >
         <Text style={styles.proceedText}>Magpatuloy</Text>
       </TouchableOpacity>
@@ -130,87 +115,105 @@ export default function SelectOptionsScreen() {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    paddingBottom: 40,
     flexGrow: 1,
+    paddingBottom: 40,
   },
   topArc: {
     width: '100%',
-    height: 130,
+    height: 160,
     backgroundColor: '#2e7d32',
-    borderBottomLeftRadius: 80,
-    borderBottomRightRadius: 80,
-    marginBottom: -30,
+    borderBottomLeftRadius: 60,
+    borderBottomRightRadius: 60,
+    justifyContent: 'flex-end',
+    paddingBottom: 20,
+    paddingHorizontal: 24,
+    position: 'relative',
   },
-  headerTitle: {
-    paddingTop: 40,
-    fontSize: 26,
+  backButton: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    padding: 6,
+    zIndex: 10,
+  },
+  pageTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#2e7d32',
+    color: '#fff',
     textAlign: 'center',
+    fontFamily: 'Poppins_700Bold',
   },
   subHeader: {
-    fontSize: 16,
-    color: '#555',
+    fontSize: 15,
+    color: '#666',
     textAlign: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 30,
+    marginVertical: 16,
+    paddingHorizontal: 24,
+    fontStyle: 'italic',
   },
-  cardBox: {
-    backgroundColor: '#f1fbf1',
-    borderRadius: 20,
+  sectionContainer: {
+    backgroundColor: '#f9fff7',
     marginHorizontal: 24,
     padding: 20,
-    elevation: 4,
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    shadowRadius: 5,
+    elevation: 4,
   },
   sectionLabel: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: '#2e7d32',
-    marginBottom: 6,
-    marginTop: 15,
-  },
-  optionButton: {
-    width: '100%',
-    borderWidth: 1.2,
-    borderColor: '#2e7d32',
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
     marginBottom: 10,
+    marginTop: 16,
+  },
+  optionsRow: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: 10,
+    flexWrap: 'wrap',
+  },
+  chip: {
+    borderWidth: 1.5,
+    borderColor: '#2e7d32',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 18,
     backgroundColor: '#fff',
   },
-  selectedButton: {
-    backgroundColor: '#d4f5d1',
+  chipSelected: {
+    backgroundColor: '#d6f5d6',
     borderColor: '#1b5e20',
   },
-  optionText: {
-    fontSize: 16,
+  chipText: {
     color: '#2e7d32',
-    textAlign: 'center',
-    fontWeight: '600',
+    fontWeight: '500',
   },
-  selectedText: {
+  chipTextSelected: {
     color: '#1b5e20',
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
   pickerWrapper: {
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: '#2e7d32',
     borderRadius: 10,
     overflow: 'hidden',
-    marginBottom: 10,
+    marginBottom: 8,
+  },
+  picker: {
+    height: 50,
+    paddingHorizontal: 10,
   },
   proceedButton: {
     backgroundColor: '#2e7d32',
-    paddingVertical: 14,
-    paddingHorizontal: 100,
+    paddingVertical: 16,
+    paddingHorizontal: 60,
     borderRadius: 50,
     alignSelf: 'center',
-    marginTop: 30,
+    marginTop: 24,
+    elevation: 2,
   },
   proceedText: {
     color: '#fff',

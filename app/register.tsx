@@ -195,10 +195,10 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 160,
-    height: 100,
+    height: 160,
     alignSelf: 'center',
-    marginTop: 40,
-    marginBottom: 10,
+    marginTop: -40,
+    marginBottom: -30,
   },
   tabContainer: {
     flexDirection: 'row',

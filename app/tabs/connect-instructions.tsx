@@ -122,8 +122,9 @@ const styles = StyleSheet.create({
   logo: {
     width: 190,
     height: 180,
-    marginBottom: 0,
+    marginBottom: -20,
     marginTop: 10,
+    top: 10,
   },
   title: {
     fontSize: 20,
@@ -192,7 +193,6 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#2e7d32',
-    top: 20,
     paddingVertical: 13,
     paddingHorizontal: 100,
     borderRadius: 50,

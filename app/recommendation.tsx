@@ -1,5 +1,5 @@
 // app/recommendation.tsx
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Image,
   ScrollView,
@@ -13,6 +13,7 @@ import { useFertilizerPrices } from '../context/FertilizerContext'; // ✅ impor
 export default function RecommendationScreen() {
   const router = useRouter();
   const { prices: fertilizerPrices } = useFertilizerPrices(); // ✅ access current prices
+  const { ph } = useLocalSearchParams(); // ✅ retrieve pH value (e.g. from sensor-reading.tsx)
 
   // Simulated fertilizer amounts (you can adjust these dynamically later)
   const fertilizerAmounts = {
@@ -21,16 +22,22 @@ export default function RecommendationScreen() {
     plan3: { npk: 179, urea: 226, mop: 149 },
   };
 
-// Dynamically calculate prices using current fertilizer context
-const totalPrice = (items: { [key: string]: number }) => {
-  let total = 0;
-  for (const key in items) {
-    const amount = items[key];
-    const price = (fertilizerPrices as Record<string, number>)[key] ?? 0;
-    total += amount * price;
-  }
-  return total;
-};
+  // Dynamically calculate prices using current fertilizer context
+  const totalPrice = (items: { [key: string]: number }) => {
+    let total = 0;
+    for (const key in items) {
+      const amount = items[key];
+      const price = (fertilizerPrices as Record<string, number>)[key] ?? 0;
+      total += amount * price;
+    }
+    return total;
+  };
+
+  // Simulate pH message
+  const phValue = parseFloat(ph as string) || 6.5; // default if none passed
+  let phStatus = 'Neutral';
+  if (phValue < 5.5) phStatus = 'Acidic';
+  else if (phValue > 7.5) phStatus = 'Alkaline';
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -39,7 +46,18 @@ const totalPrice = (items: { [key: string]: number }) => {
         source={require('../assets/images/fertisense-logo.png')}
         style={styles.logo}
         resizeMode="contain"
-      />
+      /> 
+
+      {/* PH Level Box */}
+      <View style={styles.phBox}>
+        <Text style={styles.phLabel}>📊 pH Level Result:</Text>
+        <Text style={styles.phValue}>{phValue.toFixed(1)} ({phStatus})</Text>
+        <Text style={styles.phNote}>
+          {phStatus === 'Acidic' && 'Soil is too acidic. Consider applying lime.'}
+          {phStatus === 'Neutral' && 'Soil pH is optimal for most crops.'}
+          {phStatus === 'Alkaline' && 'Soil is alkaline. May affect nutrient availability.'}
+        </Text>
+      </View>
 
       {/* Recommendation Box */}
       <View style={styles.recommendationBox}>
@@ -172,6 +190,29 @@ const styles = StyleSheet.create({
     height: 80,
     alignSelf: 'center',
     marginBottom: 12,
+  },
+  phBox: {
+    backgroundColor: '#e8f5e9',
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  phLabel: {
+    fontSize: 14,
+    color: '#2e7d32',
+    fontWeight: 'bold',
+  },
+  phValue: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#1b5e20',
+    marginVertical: 4,
+  },
+  phNote: {
+    fontSize: 13,
+    color: '#555',
+    textAlign: 'center',
   },
   recommendationBox: {
     borderColor: '#4CAF50',

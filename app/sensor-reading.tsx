@@ -1,53 +1,85 @@
+// app/sensor-reading.tsx
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 export default function SensorReadingScreen() {
   const router = useRouter();
-  const [currentCount, setCurrentCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isReading, setIsReading] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
-useEffect(() => {
-  let timeout: ReturnType<typeof setTimeout>;
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
 
-  if (isLoading && currentCount < 5) {
-    timeout = setTimeout(() => {
-      setCurrentCount(prev => prev + 1);
-    }, 1500);
-  } else if (currentCount === 5) {
-    timeout = setTimeout(() => {
-      router.push('/recommendation');
-    }, 2000);
-  }
+    if (isReading && currentStep < 5) {
+      timeout = setTimeout(() => {
+        setCurrentStep(prev => prev + 1);
+      }, 1500);
+    } else if (currentStep === 5 && !isComplete) {
+      setIsComplete(true);
+      timeout = setTimeout(() => {
+        router.push('/recommendation');
+      }, 3000); // Add delay before routing
+    }
 
-  return () => clearTimeout(timeout);
-}, [currentCount, isLoading]);
-
+    return () => clearTimeout(timeout);
+  }, [currentStep, isReading]);
 
   const handleStart = () => {
-    setIsLoading(true);
-    setCurrentCount(1);
+    setIsReading(true);
+    setCurrentStep(1);
+  };
+
+  const renderReadingLine = (index: number) => {
+    const label = `${index}/5 - Soil sample`;
+    const isCompleted = currentStep > index;
+    const isCurrent = currentStep === index;
+
+    return (
+      <View key={index} style={styles.readingLine}>
+        <Text style={styles.readingText}>{label}</Text>
+        {isCompleted ? (
+          <Image
+            source={require('../assets/images/checkmark.png')}
+            style={styles.checkIcon}
+          />
+        ) : isCurrent ? (
+          <ActivityIndicator size="small" color="#2e7d32" />
+        ) : null}
+      </View>
+    );
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Insert the Sensor to the Soil</Text>
+      <Text style={styles.title}>Insert Sensor to the Soil</Text>
       <Text style={styles.subtitle}>
-        Please insert the sensor into the soil to begin reading nutrients and pH level.
+        The system will take 5 automatic readings from different soil spots, including pH level.
       </Text>
 
-      <View style={styles.box}>
-        {isLoading ? (
-          <>
-            <ActivityIndicator size="large" color="#2e7d32" />
-            <Text style={styles.loadingText}>Reading... {currentCount}/5 connected</Text>
-          </>
-        ) : (
-          <TouchableOpacity onPress={handleStart} style={styles.button}>
-            <Text style={styles.buttonText}>Begin Soil Reading</Text>
-          </TouchableOpacity>
-        )}
+      <View style={styles.readingsContainer}>
+        {[1, 2, 3, 4, 5].map(index => renderReadingLine(index))}
       </View>
+
+      {isComplete && (
+        <Text style={styles.successMessage}>
+          ✅ Reading successful! Please wait for fertilizer recommendation...
+        </Text>
+      )}
+
+      {!isReading && !isComplete && (
+        <TouchableOpacity style={styles.button} onPress={handleStart}>
+          <Text style={styles.buttonText}>Start Soil Reading</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -55,9 +87,10 @@ useEffect(() => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 30,
     backgroundColor: '#fff',
+    paddingHorizontal: 30,
     justifyContent: 'center',
+    paddingTop: 80,
   },
   title: {
     fontSize: 24,
@@ -69,26 +102,45 @@ const styles = StyleSheet.create({
   subtitle: {
     textAlign: 'center',
     fontSize: 15,
-    marginBottom: 30,
     color: '#555',
+    marginBottom: 30,
+    paddingHorizontal: 10,
   },
-  box: {
-    padding: 25,
-    borderWidth: 2,
-    borderColor: '#2e7d32',
+  readingsContainer: {
+    backgroundColor: '#f1fbf1',
+    padding: 20,
     borderRadius: 15,
-    alignItems: 'center',
+    marginBottom: 30,
+    elevation: 3,
   },
-  loadingText: {
-    marginTop: 12,
+  readingLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  readingText: {
     fontSize: 16,
+    flex: 1,
     color: '#333',
+  },
+  checkIcon: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
+  },
+  successMessage: {
+    textAlign: 'center',
+    color: '#2e7d32',
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 20,
   },
   button: {
     backgroundColor: '#2e7d32',
     paddingVertical: 14,
     paddingHorizontal: 50,
     borderRadius: 30,
+    alignSelf: 'center',
   },
   buttonText: {
     color: '#fff',
