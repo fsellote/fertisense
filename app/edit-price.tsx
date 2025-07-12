@@ -1,19 +1,35 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { useFertilizerPrices } from '../context/FertilizerContext';
 
 export default function EditPriceScreen() {
   const router = useRouter();
+  const { prices, setPrices } = useFertilizerPrices();
 
-  // State for each fertilizer price
-  const [nPrice, setNPrice] = useState('');
-  const [pPrice, setPPrice] = useState('');
-  const [kPrice, setKPrice] = useState('');
+  // Local states initialized with current prices
+  const [nPrice, setNPrice] = useState(prices.urea.toString());
+  const [pPrice, setPPrice] = useState(prices.ssp.toString());
+  const [kPrice, setKPrice] = useState(prices.mop.toString());
 
   const handleSave = () => {
-    // Save logic here (e.g. send to backend or context)
-    console.log('New Prices:', { nPrice, pPrice, kPrice });
-    router.back(); // Go back after saving
+    const newPrices = {
+      ...prices,
+      urea: parseFloat(nPrice),
+      ssp: parseFloat(pPrice),
+      mop: parseFloat(kPrice),
+    };
+
+    setPrices(newPrices);
+    Alert.alert('Prices Updated', 'Fertilizer prices have been saved.');
+    router.back();
   };
 
   return (
@@ -21,8 +37,8 @@ export default function EditPriceScreen() {
       <Text style={styles.title}>Edit Fertilizer Price</Text>
       <Text style={styles.subtitle}>Department of Agriculture</Text>
 
-      {/* N */}
-      <Text style={styles.label}>Nitrogen (N) Price (₱/kg)</Text>
+      {/* Nitrogen */}
+      <Text style={styles.label}>Nitrogen (Urea - N) Price (₱/kg)</Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
@@ -31,8 +47,8 @@ export default function EditPriceScreen() {
         placeholder="e.g. 50"
       />
 
-      {/* P */}
-      <Text style={styles.label}>Phosphorus (P) Price (₱/kg)</Text>
+      {/* Phosphorus */}
+      <Text style={styles.label}>Phosphorus (SSP - P) Price (₱/kg)</Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
@@ -41,8 +57,8 @@ export default function EditPriceScreen() {
         placeholder="e.g. 45"
       />
 
-      {/* K */}
-      <Text style={styles.label}>Potassium (K) Price (₱/kg)</Text>
+      {/* Potassium */}
+      <Text style={styles.label}>Potassium (MOP - K) Price (₱/kg)</Text>
       <TextInput
         style={styles.input}
         keyboardType="numeric"
@@ -51,7 +67,6 @@ export default function EditPriceScreen() {
         placeholder="e.g. 60"
       />
 
-      {/* Save Button */}
       <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
         <Text style={styles.saveText}>Save Changes</Text>
       </TouchableOpacity>

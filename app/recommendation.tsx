@@ -1,9 +1,36 @@
 // app/recommendation.tsx
 import { useRouter } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+import { useFertilizerPrices } from '../context/FertilizerContext'; // ✅ import context
 
 export default function RecommendationScreen() {
   const router = useRouter();
+  const { prices: fertilizerPrices } = useFertilizerPrices(); // ✅ access current prices
+
+  // Simulated fertilizer amounts (you can adjust these dynamically later)
+  const fertilizerAmounts = {
+    plan1: { urea: 261, ssp: 193, mop: 197 },
+    plan2: { dap: 70, urea: 247, mop: 197 },
+    plan3: { npk: 179, urea: 226, mop: 149 },
+  };
+
+// Dynamically calculate prices using current fertilizer context
+const totalPrice = (items: { [key: string]: number }) => {
+  let total = 0;
+  for (const key in items) {
+    const amount = items[key];
+    const price = (fertilizerPrices as Record<string, number>)[key] ?? 0;
+    total += amount * price;
+  }
+  return total;
+};
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -20,14 +47,12 @@ export default function RecommendationScreen() {
           Rekomendasyon: <Text style={{ fontStyle: 'italic' }}>(Recommendation)</Text>
         </Text>
         <Text style={styles.recommendationText}>
-          Mataas ang Nitrogen at Potassium ng lupa. Mababa ang Phosphorus.
-          Inirerekomenda naming magdagdag ng abono na may mataas na Phosphorus tulad ng
-          Superphosphate. Hindi kailangan ng patubig, sapat ang basa ng lupa.
+          Mababa ang Phosphorus ng lupa. Katamtaman ang Nitrogen at Potassium.
+          Inirerekomenda naming magdagdag ng abono na may mataas na Phosphorus tulad ng Superphosphate.
         </Text>
         <Text style={styles.englishText}>
-          The soil has high Nitrogen and Potassium, but Phosphorus is low.
-          We recommend applying a fertilizer high in Phosphorus such as Superphosphate.
-          No need to water, soil moisture is adequate.
+          The soil is low in Phosphorus. Nitrogen and Potassium are medium.
+          We recommend applying fertilizer with high Phosphorus like Superphosphate.
         </Text>
       </View>
 
@@ -51,7 +76,7 @@ export default function RecommendationScreen() {
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={styles.tableTitle}>Fertilizer Recommendation – I</Text>
-          <Text style={styles.priceTag}>₱4,800</Text>
+          <Text style={styles.priceTag}>₱{totalPrice(fertilizerAmounts.plan1).toFixed(2)}</Text>
         </View>
         <View style={styles.tableRow}>
           <Text style={styles.cellHeader}>Stages</Text>
@@ -77,7 +102,7 @@ export default function RecommendationScreen() {
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={styles.tableTitle}>Fertilizer Recommendation – II</Text>
-          <Text style={styles.priceTag}>₱5,200</Text>
+          <Text style={styles.priceTag}>₱{totalPrice(fertilizerAmounts.plan2).toFixed(2)}</Text>
         </View>
         <View style={styles.tableRow}>
           <Text style={styles.cellHeader}>Stages</Text>
@@ -103,7 +128,7 @@ export default function RecommendationScreen() {
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={styles.tableTitle}>Fertilizer Recommendation – III</Text>
-          <Text style={styles.priceTag}>₱5,000</Text>
+          <Text style={styles.priceTag}>₱{totalPrice(fertilizerAmounts.plan3).toFixed(2)}</Text>
         </View>
         <View style={styles.tableRow}>
           <Text style={styles.cellHeader}>Stages</Text>

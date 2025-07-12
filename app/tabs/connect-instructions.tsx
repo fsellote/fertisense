@@ -98,7 +98,7 @@ export default function ConnectInstructionsScreen() {
       {/* Proceed Button */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/select-rice-type')}
+        onPress={() => router.push('/select-options')}
       >
         <Text style={styles.buttonText}>Magpatuloy</Text>
       </TouchableOpacity>

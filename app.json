@@ -4,7 +4,7 @@
     "slug": "fertisense",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "../../assets/images/fertisense-logo.png", 
+    "icon": "./assets/images/splash-logo.png",
     "scheme": "fertisense",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,31 +13,38 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/splash-logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.fertisense.soilsensor"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/splash-logo.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
+          "image": "./assets/images/splash-logo.png",
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3fcfe061-80ca-460c-8b1d-5186776c7401"
+      }
     }
   }
 }
