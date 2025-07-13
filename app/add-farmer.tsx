@@ -1,110 +1,206 @@
-// app/tabs/add-farmer.tsx
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useData } from '../context/DataContext'; // ✅ fixed import path
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 export default function AddFarmerScreen() {
   const router = useRouter();
-  const { addFarmer, addReading } = useData();
 
   const [name, setName] = useState('');
-  const [code, setCode] = useState('');
+  const [farmerCode, setFarmerCode] = useState('');
+  const [location, setLocation] = useState('');
+  const [farmSize, setFarmSize] = useState('');
+  const [riceType, setRiceType] = useState('');
+  const [cropStyle, setCropStyle] = useState('');
 
   const handleSave = () => {
-    if (!name || !code) return;
+    if (!name || !farmerCode || !location || !farmSize || !riceType || !cropStyle) {
+      Alert.alert('📌 Kulang na Impormasyon', 'Pakiusap, punan ang lahat ng detalye.');
+      return;
+    }
 
-    const newFarmer = {
-      id: Date.now().toString(), // ✅ added id field
-      name,
-      code,
-    };
-
-    const mockReading = {
-      name,
-      code,
-      date: new Date().toDateString(),
-      n: 100,
-      p: 45,
-      k: 90,
-      recommendation: [
-        'Maglagay ng Superphosphate (P) na abono.',
-        'Hindi kailangang magdilig.',
-      ],
-    };
-
-    addFarmer(newFarmer);
-    addReading(mockReading);
+    Alert.alert('✅ Naidagdag ang Magsasaka', `Pangalan: ${name}\nLokasyon: ${location}`);
     router.push('/tabs/connect-instructions');
   };
 
   return (
     <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={26} color="#fff" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Profile ng Magsasaka</Text>
+      </View>
 
-            {/* Green Arc Background (Optional) */}
-            <View style={styles.topArc} />
-      
-      {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#333" />
-      </TouchableOpacity>
-      
-      <Text style={styles.title}>Farmer Details</Text>
-      <Text style={styles.subtitle}>Fill in farmer’s information</Text>
+      {/* Form */}
+      <ScrollView contentContainerStyle={styles.form} showsVerticalScrollIndicator={false}>
+        <Text style={styles.label}>👤 Pangalan ng Magsasaka</Text>
+        <TextInput
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+          placeholder="Hal. Juan Dela Cruz"
+          placeholderTextColor="#aaa"
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Farmer Name"
-        value={name}
-        onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Farmer Code"
-        value={code}
-        onChangeText={setCode}
-      />
+        <Text style={styles.label}>📍 Lokasyon ng Sakahan</Text>
+        <TextInput
+          style={styles.input}
+          value={location}
+          onChangeText={setLocation}
+          placeholder="Hal. Valencia, Bukidnon"
+          placeholderTextColor="#aaa"
+        />
 
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>Save Details</Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>📏 Laki ng Sakahan (hectares)</Text>
+        <TextInput
+          style={styles.input}
+          value={farmSize}
+          onChangeText={setFarmSize}
+          placeholder="Hal. 2.5"
+          keyboardType="numeric"
+          placeholderTextColor="#aaa"
+        />
+
+        <Text style={styles.label}>🌾 Uri ng Palay</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={riceType}
+            onValueChange={setRiceType}
+            style={styles.picker}
+          >
+            <Picker.Item label="Pumili..." value="" />
+            <Picker.Item label="Hybrid" value="hybrid" />
+            <Picker.Item label="Inbred" value="inbred" />
+            <Picker.Item label="Pareho" value="pareho" />
+          </Picker>
+        </View>
+
+        <Text style={styles.label}>💧 Estilo ng Pagtatanim</Text>
+        <View style={styles.pickerWrapper}>
+          <Picker
+            selectedValue={cropStyle}
+            onValueChange={setCropStyle}
+            style={styles.picker}
+          >
+            <Picker.Item label="Pumili..." value="" />
+            <Picker.Item label="Irrigated" value="irrigated" />
+            <Picker.Item label="Rainfed" value="rainfed" />
+            <Picker.Item label="Pareho" value="pareho" />
+          </Picker>
+        </View>
+
+        <Text style={styles.label}>🆔 Farmer Code</Text>
+        <TextInput
+          style={styles.input}
+          value={farmerCode}
+          onChangeText={setFarmerCode}
+          placeholder="Hal. FRM123"
+          placeholderTextColor="#aaa"
+        />
+
+        {/* Save Button */}
+        <TouchableOpacity
+          style={[
+            styles.saveButton,
+            !(name && farmerCode && location && farmSize && riceType && cropStyle) && { backgroundColor: '#aaa' },
+          ]}
+          onPress={handleSave}
+          disabled={!(name && farmerCode && location && farmSize && riceType && cropStyle)}
+        >
+          <Text style={styles.saveText}>💾 I-save</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 27, backgroundColor: '#fff' },
-  title: { fontSize: 27, fontWeight: 'bold', marginBottom: 5, marginTop: 150 },
-  subtitle: { fontSize: 16, color: '#555', marginBottom: 25 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-  },
-    backButton: {
-    position: 'absolute',
-    top: 120,
-    left: 20,
-    zIndex: 10,
-  },
-    topArc: {
-    position: 'absolute',
-    top: -40,
-    width: '120%',
-    height: 130,
+  container: { flex: 1, backgroundColor: '#f5fff5' },
+
+  header: {
     backgroundColor: '#2e7d32',
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-  },
-  button: {
-    backgroundColor: '#2e7d32',
-    marginTop: 40,
-    paddingVertical: 14,
-    borderRadius: 100,
+    paddingTop: 50,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 50,
+    borderBottomRightRadius: 50,
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: 15,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
-  buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+    fontFamily: 'Poppins_700Bold',
+  },
+
+  form: {
+    padding: 24,
+  },
+
+  label: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#2e7d32',
+    marginBottom: 6,
+    fontFamily: 'Poppins_600SemiBold',
+  },
+
+  input: {
+    borderWidth: 1.3,
+    borderColor: '#c1e1c1',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    fontSize: 15,
+    fontFamily: 'Poppins_400Regular',
+  },
+
+  pickerWrapper: {
+    borderWidth: 1.2,
+    borderColor: '#c1e1c1',
+    borderRadius: 10,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+  },
+
+  picker: {
+    height: 48,
+    fontFamily: 'Poppins_400Regular',
+  },
+
+  saveButton: {
+    backgroundColor: '#2e7d32',
+    paddingVertical: 14,
+    borderRadius: 50,
+    alignItems: 'center',
+    elevation: 4,
+  },
+
+  saveText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    fontFamily: 'Poppins_600SemiBold',
+  },
 });

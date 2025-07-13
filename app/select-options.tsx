@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   Platform,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,202 +23,224 @@ export default function SelectOptionsScreen() {
   const allSelected = riceType && cropStyle && soilType && season;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Top Arc with Back Button */}
-      <View style={styles.topArc}>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.push('/tabs/connect-instructions')}>
+    <SafeAreaView style={styles.safeArea}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.push('/tabs/connect-instructions')}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.pageTitle}>Rekomendasyon ng Pataba</Text>
+        <Text style={styles.headerTitle}>Farm Details</Text>
       </View>
 
-      <Text style={styles.subHeader}>
-        Pumili ng mga impormasyon tungkol sa iyong sakahan upang makabuo ng tamang rekomendasyon.
-      </Text>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <Text style={styles.description}>
+          Pumili ng mga impormasyon tungkol sa iyong sakahan upang makabuo ng tamang rekomendasyon.
+        </Text>
 
-      {/* Card Container */}
-      <View style={styles.sectionContainer}>
-        {/* Section 1: Uri ng Palay */}
-        <Text style={styles.sectionLabel}>🌾 Uri ng Palay</Text>
-        <View style={styles.optionsRow}>
-          {['Hybrid', 'Inbred', 'Pareho'].map((type) => {
-            const selected = riceType === type.toLowerCase();
-            return (
-              <TouchableOpacity
-                key={type}
-                style={[styles.chip, selected && styles.chipSelected]}
-                onPress={() => setRiceType(type.toLowerCase())}
-              >
-                <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                  {type}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+        {/* URI NG PALAY */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>🌾 Uri ng Palay</Text>
+          <View style={styles.optionsRow}>
+            {['Hybrid', 'Inbred', 'Pareho'].map((type) => {
+              const selected = riceType === type.toLowerCase();
+              return (
+                <TouchableOpacity
+                  key={type}
+                  style={[styles.chip, selected && styles.chipSelected]}
+                  onPress={() => setRiceType(type.toLowerCase())}
+                >
+                  <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+                    {type}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
 
-        {/* Section 2: Estilo ng Sakahan */}
-        <Text style={styles.sectionLabel}>💧 Estilo ng Sakahan</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={cropStyle}
-            onValueChange={setCropStyle}
-            style={Platform.OS === 'android' ? styles.picker : {}}
-          >
-            <Picker.Item label="Pumili..." value="" />
-            <Picker.Item label="Irrigated" value="irrigated" />
-            <Picker.Item label="Rainfed" value="rainfed" />
-            <Picker.Item label="Pareho" value="pareho" />
-          </Picker>
+        {/* ESTILO NG SAKAHAN */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>💧 Estilo ng Sakahan</Text>
+          <View style={[styles.pickerWrapper, cropStyle !== '' && styles.pickerSelected]}>
+            <Picker
+              selectedValue={cropStyle}
+              onValueChange={setCropStyle}
+              style={[Platform.OS === 'android' ? styles.picker : {}, cropStyle !== '' && styles.selectedPickerText]}
+            >
+              <Picker.Item label="Pumili..." value="" />
+              <Picker.Item label="Irrigated" value="irrigated" />
+              <Picker.Item label="Rainfed" value="rainfed" />
+              <Picker.Item label="Pareho" value="pareho" />
+            </Picker>
+          </View>
         </View>
 
-        {/* Section 3: Uri ng Lupa */}
-        <Text style={styles.sectionLabel}>🧱 Uri ng Lupa</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={soilType}
-            onValueChange={setSoilType}
-            style={Platform.OS === 'android' ? styles.picker : {}}
-          >
-            <Picker.Item label="Pumili..." value="" />
-            <Picker.Item label="Light Soils" value="light soils" />
-            <Picker.Item label="Med-Heavy Soils" value="med-heavy soils" />
-          </Picker>
+        {/* URI NG LUPA */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>🧱 Uri ng Lupa</Text>
+          <View style={[styles.pickerWrapper, soilType !== '' && styles.pickerSelected]}>
+            <Picker
+              selectedValue={soilType}
+              onValueChange={setSoilType}
+              style={[Platform.OS === 'android' ? styles.picker : {}, soilType !== '' && styles.selectedPickerText]}
+            >
+              <Picker.Item label="Pumili..." value="" />
+              <Picker.Item label="Light Soils" value="light soils" />
+              <Picker.Item label="Med-Heavy Soils" value="med-heavy soils" />
+            </Picker>
+          </View>
         </View>
 
-        {/* Section 4: Panahon */}
-        <Text style={styles.sectionLabel}>⛅ Panahon ng Pagtatanim</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={season}
-            onValueChange={setSeason}
-            style={Platform.OS === 'android' ? styles.picker : {}}
-          >
-            <Picker.Item label="Pumili..." value="" />
-            <Picker.Item label="Wet Season" value="wet season" />
-            <Picker.Item label="Dry Season" value="dry season" />
-          </Picker>
+        {/* PANAHON */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>⛅ Panahon ng Pagtatanim</Text>
+          <View style={[styles.pickerWrapper, season !== '' && styles.pickerSelected]}>
+            <Picker
+              selectedValue={season}
+              onValueChange={setSeason}
+              style={[Platform.OS === 'android' ? styles.picker : {}, season !== '' && styles.selectedPickerText]}
+            >
+              <Picker.Item label="Pumili..." value="" />
+              <Picker.Item label="Wet Season" value="wet season" />
+              <Picker.Item label="Dry Season" value="dry season" />
+            </Picker>
+          </View>
         </View>
-      </View>
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
 
       {/* Proceed Button */}
       <TouchableOpacity
-        style={[styles.proceedButton, !allSelected && { backgroundColor: '#ccc' }]}
+        style={[styles.proceedButton, !allSelected && styles.disabledButton]}
         disabled={!allSelected}
         onPress={() => router.push('/sensor-reading')}
       >
-        <Text style={styles.proceedText}>Magpatuloy</Text>
+        <Ionicons name="arrow-forward-circle" size={20} color="#fff" />
+        <Text style={styles.proceedText}>  Magpatuloy</Text>
       </TouchableOpacity>
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    flexGrow: 1,
-    paddingBottom: 40,
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5fff5',
   },
-  topArc: {
-    width: '100%',
-    height: 160,
-    backgroundColor: '#2e7d32',
-    borderBottomLeftRadius: 60,
-    borderBottomRightRadius: 60,
-    justifyContent: 'flex-end',
-    paddingBottom: 20,
-    paddingHorizontal: 24,
-    position: 'relative',
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1b5e20',
+    paddingTop: 60,
+    paddingBottom: 15,
+    paddingHorizontal: 20,
+    elevation: 10,
   },
-  backButton: {
-    position: 'absolute',
-    top: 50,
-    left: 20,
-    padding: 6,
-    zIndex: 10,
-  },
-  pageTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  headerTitle: {
+    flex: 1,
+    fontSize: 18,
     color: '#fff',
+    fontWeight: 'bold',
     textAlign: 'center',
-    fontFamily: 'Poppins_700Bold',
+    marginRight: 30,
   },
-  subHeader: {
-    fontSize: 15,
-    color: '#666',
+  scrollContent: {
+    padding: 24,
+  },
+  description: {
+    fontSize: 14,
+    color: '#444',
+    marginBottom: 20,
+    paddingBottom: 9,
     textAlign: 'center',
-    marginVertical: 16,
-    paddingHorizontal: 24,
     fontStyle: 'italic',
+    fontFamily: 'Poppins_400Regular',
   },
-  sectionContainer: {
-    backgroundColor: '#f9fff7',
-    marginHorizontal: 24,
-    padding: 20,
-    borderRadius: 20,
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 20,
+    borderLeftWidth: 5,
+    borderLeftColor: '#2e7d32',
     shadowColor: '#000',
-    shadowOpacity: 0.06,
     shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 5,
-    elevation: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  sectionLabel: {
-    fontSize: 16,
-    fontWeight: '600',
+  cardTitle: {
+    fontSize: 15,
     color: '#2e7d32',
-    marginBottom: 10,
-    marginTop: 16,
+    marginBottom: 11,
+    fontFamily: 'Poppins_600SemiBold',
   },
   optionsRow: {
     flexDirection: 'row',
-    gap: 10,
-    marginBottom: 10,
     flexWrap: 'wrap',
+    gap: 10,
   },
   chip: {
     borderWidth: 1.5,
     borderColor: '#2e7d32',
-    borderRadius: 20,
-    paddingVertical: 8,
-    paddingHorizontal: 18,
+    borderRadius: 15,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
     backgroundColor: '#fff',
   },
   chipSelected: {
-    backgroundColor: '#d6f5d6',
+    backgroundColor: '#a5d6a7',
     borderColor: '#1b5e20',
   },
   chipText: {
     color: '#2e7d32',
-    fontWeight: '500',
+    fontFamily: 'Poppins_500Medium',
   },
   chipTextSelected: {
-    color: '#1b5e20',
-    fontWeight: '700',
+    color: '#fff',
+    fontFamily: 'Poppins_700Bold',
   },
   pickerWrapper: {
-    borderWidth: 1.2,
+    borderWidth: 1.3,
     borderColor: '#2e7d32',
     borderRadius: 10,
     overflow: 'hidden',
-    marginBottom: 8,
+    backgroundColor: '#f0fdf4',
+  },
+  pickerSelected: {
+    backgroundColor: '#d9f7dc',
+    borderColor: '#1b5e20',
   },
   picker: {
     height: 50,
     paddingHorizontal: 10,
+    fontFamily: 'Poppins_400Regular',
+  },
+  selectedPickerText: {
+    color: '#1b5e20',
+    fontWeight: 'bold',
+    fontFamily: 'Poppins_600SemiBold',
   },
   proceedButton: {
+    position: 'absolute',
+    bottom: 70,
+    left: 20,
+    right: 20,
+    flexDirection: 'row',
     backgroundColor: '#2e7d32',
     paddingVertical: 16,
-    paddingHorizontal: 60,
     borderRadius: 50,
-    alignSelf: 'center',
-    marginTop: 24,
-    elevation: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+  },
+  disabledButton: {
+    backgroundColor: '#aaa',
   },
   proceedText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '600', // NOT using Poppins here as requested
   },
 });
