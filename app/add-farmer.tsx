@@ -9,24 +9,49 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
+import uuid from 'react-native-uuid';
+import { useData } from '../context/DataContext';
 
 export default function AddFarmerScreen() {
   const router = useRouter();
+  const { addFarmer, addReading } = useData();
 
   const [name, setName] = useState('');
-  const [farmerCode, setFarmerCode] = useState('');
   const [location, setLocation] = useState('');
   const [farmSize, setFarmSize] = useState('');
   const [riceType, setRiceType] = useState('');
   const [cropStyle, setCropStyle] = useState('');
 
   const handleSave = () => {
-    if (!name || !farmerCode || !location || !farmSize || !riceType || !cropStyle) {
+    if (!name || !location || !farmSize || !riceType || !cropStyle) {
       Alert.alert('📌 Kulang na Impormasyon', 'Pakiusap, punan ang lahat ng detalye.');
       return;
     }
+
+    const id = uuid.v4().toString();
+    const farmerCode = `${name.split(' ')[0].toLowerCase()}-${Date.now().toString().slice(-4)}`;
+
+    const newFarmer = {
+      id,
+      name,
+      code: farmerCode,
+    };
+
+    addFarmer(newFarmer);
+
+    // Create default reading entry
+    const today = new Date().toLocaleDateString();
+    addReading({
+      name,
+      code: farmerCode,
+      date: today,
+      n: 0,
+      p: 0,
+      k: 0,
+      recommendation: [],
+    });
 
     Alert.alert('✅ Naidagdag ang Magsasaka', `Pangalan: ${name}\nLokasyon: ${location}`);
     router.push('/tabs/connect-instructions');
@@ -100,23 +125,14 @@ export default function AddFarmerScreen() {
           </Picker>
         </View>
 
-        <Text style={styles.label}>🆔 Farmer Code</Text>
-        <TextInput
-          style={styles.input}
-          value={farmerCode}
-          onChangeText={setFarmerCode}
-          placeholder="Hal. FRM123"
-          placeholderTextColor="#aaa"
-        />
-
         {/* Save Button */}
         <TouchableOpacity
           style={[
             styles.saveButton,
-            !(name && farmerCode && location && farmSize && riceType && cropStyle) && { backgroundColor: '#aaa' },
+            !(name && location && farmSize && riceType && cropStyle) && { backgroundColor: '#aaa' },
           ]}
           onPress={handleSave}
-          disabled={!(name && farmerCode && location && farmSize && riceType && cropStyle)}
+          disabled={!(name && location && farmSize && riceType && cropStyle)}
         >
           <Text style={styles.saveText}>💾 I-save</Text>
         </TouchableOpacity>
@@ -127,7 +143,6 @@ export default function AddFarmerScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5fff5' },
-
   header: {
     backgroundColor: '#2e7d32',
     paddingTop: 50,
@@ -144,18 +159,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
-
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
     fontFamily: 'Poppins_700Bold',
   },
-
   form: {
     padding: 24,
   },
-
   label: {
     fontSize: 15,
     fontWeight: '600',
@@ -163,7 +175,6 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     fontFamily: 'Poppins_600SemiBold',
   },
-
   input: {
     borderWidth: 1.3,
     borderColor: '#c1e1c1',
@@ -175,7 +186,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'Poppins_400Regular',
   },
-
   pickerWrapper: {
     borderWidth: 1.2,
     borderColor: '#c1e1c1',
@@ -183,12 +193,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: '#fff',
   },
-
   picker: {
     height: 48,
     fontFamily: 'Poppins_400Regular',
   },
-
   saveButton: {
     backgroundColor: '#2e7d32',
     paddingVertical: 14,
@@ -196,7 +204,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 4,
   },
-
   saveText: {
     color: '#fff',
     fontSize: 16,

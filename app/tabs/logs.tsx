@@ -188,8 +188,6 @@ const styles = StyleSheet.create({
   },
   recommendHeader: { fontWeight: 'bold', marginBottom: 4 },
   recommendText: { fontSize: 14, color: '#000' },
-
-  // Modal styles
   modalBackground: {
     flex: 1,
     justifyContent: 'center',

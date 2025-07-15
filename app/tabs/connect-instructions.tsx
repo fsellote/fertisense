@@ -100,7 +100,7 @@ export default function ConnectInstructionsScreen() {
         style={styles.button}
         onPress={() => router.push('/select-options')}
       >
-        <Text style={styles.buttonText}>Magpatuloy</Text>
+        <Text style={styles.buttonText}>Connect</Text>
       </TouchableOpacity>
     </ScrollView>
   );

@@ -1,4 +1,3 @@
-// app/recommendation.tsx
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import {
   Image,
@@ -6,35 +5,43 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
-import { useFertilizerPrices } from '../context/FertilizerContext'; // ✅ import context
+import { useFertilizerPrices } from '../context/FertilizerContext';
 
 export default function RecommendationScreen() {
   const router = useRouter();
-  const { prices: fertilizerPrices } = useFertilizerPrices(); // ✅ access current prices
-  const { ph } = useLocalSearchParams(); // ✅ retrieve pH value (e.g. from sensor-reading.tsx)
+  const { prices: fertilizerPrices } = useFertilizerPrices();
+  const { ph } = useLocalSearchParams();
 
-  // Simulated fertilizer amounts (you can adjust these dynamically later)
+  // Sample realistic values (₱/kg) if not updated by admin:
+  const fallbackPrices = {
+    urea: 25,
+    ssp: 20,
+    mop: 18,
+    dap: 30,
+    npk: 27,
+  };
+
+  const prices = { ...fallbackPrices, ...fertilizerPrices };
+
   const fertilizerAmounts = {
     plan1: { urea: 261, ssp: 193, mop: 197 },
     plan2: { dap: 70, urea: 247, mop: 197 },
     plan3: { npk: 179, urea: 226, mop: 149 },
   };
 
-  // Dynamically calculate prices using current fertilizer context
   const totalPrice = (items: { [key: string]: number }) => {
     let total = 0;
     for (const key in items) {
       const amount = items[key];
-      const price = (fertilizerPrices as Record<string, number>)[key] ?? 0;
+      const price = prices[key] ?? 0;
       total += amount * price;
     }
     return total;
   };
 
-  // Simulate pH message
-  const phValue = parseFloat(ph as string) || 6.5; // default if none passed
+  const phValue = parseFloat(ph as string) || 6.5;
   let phStatus = 'Neutral';
   if (phValue < 5.5) phStatus = 'Acidic';
   else if (phValue > 7.5) phStatus = 'Alkaline';
@@ -46,12 +53,14 @@ export default function RecommendationScreen() {
         source={require('../assets/images/fertisense-logo.png')}
         style={styles.logo}
         resizeMode="contain"
-      /> 
+      />
 
-      {/* PH Level Box */}
+      {/* pH Box */}
       <View style={styles.phBox}>
         <Text style={styles.phLabel}>📊 pH Level Result:</Text>
-        <Text style={styles.phValue}>{phValue.toFixed(1)} ({phStatus})</Text>
+        <Text style={styles.phValue}>
+          {phValue.toFixed(1)} ({phStatus})
+        </Text>
         <Text style={styles.phNote}>
           {phStatus === 'Acidic' && 'Soil is too acidic. Consider applying lime.'}
           {phStatus === 'Neutral' && 'Soil pH is optimal for most crops.'}
@@ -59,22 +68,20 @@ export default function RecommendationScreen() {
         </Text>
       </View>
 
-      {/* Recommendation Box */}
+      {/* Dynamic Recommendation */}
       <View style={styles.recommendationBox}>
         <Text style={styles.recommendationTitle}>
           Rekomendasyon: <Text style={{ fontStyle: 'italic' }}>(Recommendation)</Text>
         </Text>
         <Text style={styles.recommendationText}>
-          Mababa ang Phosphorus ng lupa. Katamtaman ang Nitrogen at Potassium.
-          Inirerekomenda naming magdagdag ng abono na may mataas na Phosphorus tulad ng Superphosphate.
+          Mababa ang Phosphorus ng lupa. Katamtaman ang Nitrogen at Potassium. Inirerekomenda naming magdagdag ng abono na may mataas na Phosphorus tulad ng Superphosphate.
         </Text>
         <Text style={styles.englishText}>
-          The soil is low in Phosphorus. Nitrogen and Potassium are medium.
-          We recommend applying fertilizer with high Phosphorus like Superphosphate.
+          The soil is low in Phosphorus. Nitrogen and Potassium are medium. We recommend applying fertilizer with high Phosphorus like Superphosphate.
         </Text>
       </View>
 
-      {/* Instruction Checks */}
+      {/* Instruction Checkmarks */}
       <View style={styles.checkItem}>
         <Image source={require('../assets/images/checkmark.png')} style={styles.checkIcon} />
         <Text style={styles.checkText}>Maglagay ng Superphosphate (P) na abono.</Text>
@@ -87,10 +94,10 @@ export default function RecommendationScreen() {
       {/* Divider */}
       <View style={styles.divider} />
 
-      {/* Fertilizer Recommendations */}
+      {/* Section Title */}
       <Text style={styles.sectionTitle}>Fertilizer Recommendations</Text>
 
-      {/* Table 1 */}
+      {/* TABLE 1 */}
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={styles.tableTitle}>Fertilizer Recommendation – I</Text>
@@ -116,7 +123,7 @@ export default function RecommendationScreen() {
         </View>
       </View>
 
-      {/* Table 2 */}
+      {/* TABLE 2 */}
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={styles.tableTitle}>Fertilizer Recommendation – II</Text>
@@ -142,7 +149,7 @@ export default function RecommendationScreen() {
         </View>
       </View>
 
-      {/* Table 3 */}
+      {/* TABLE 3 */}
       <View style={styles.table}>
         <View style={styles.tableHeader}>
           <Text style={styles.tableTitle}>Fertilizer Recommendation – III</Text>
@@ -183,13 +190,14 @@ const styles = StyleSheet.create({
   container: {
     padding: 23,
     backgroundColor: '#fff',
-    flexGrow: 4,
+    flexGrow: 1,
+    paddingBottom: 80, // prevents button from hitting nav bar
   },
   logo: {
-    width: 150,
-    height: 80,
+    width: 200,
+    height: 200,
     alignSelf: 'center',
-    marginBottom: 12,
+    marginBottom: -30,
   },
   phBox: {
     backgroundColor: '#e8f5e9',
@@ -198,22 +206,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: 'center',
   },
-  phLabel: {
-    fontSize: 14,
-    color: '#2e7d32',
-    fontWeight: 'bold',
-  },
+  phLabel: { fontSize: 14, color: '#2e7d32', fontWeight: 'bold' },
   phValue: {
     fontSize: 26,
     fontWeight: 'bold',
     color: '#1b5e20',
     marginVertical: 4,
   },
-  phNote: {
-    fontSize: 13,
-    color: '#555',
-    textAlign: 'center',
-  },
+  phNote: { fontSize: 13, color: '#555', textAlign: 'center' },
   recommendationBox: {
     borderColor: '#4CAF50',
     borderWidth: 1.5,
@@ -227,11 +227,7 @@ const styles = StyleSheet.create({
     color: '#2e7d32',
     marginBottom: 8,
   },
-  recommendationText: {
-    fontSize: 14,
-    marginBottom: 8,
-    color: '#222',
-  },
+  recommendationText: { fontSize: 14, marginBottom: 8, color: '#222' },
   englishText: {
     fontSize: 13,
     color: '#555',
@@ -252,10 +248,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
     resizeMode: 'contain',
   },
-  checkText: {
-    fontSize: 14,
-    color: '#333',
-  },
+  checkText: { fontSize: 14, color: '#333' },
   divider: {
     height: 1,
     backgroundColor: '#000',
@@ -281,10 +274,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     padding: 10,
   },
-  tableTitle: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
+  tableTitle: { fontSize: 14, fontWeight: 'bold' },
   priceTag: {
     backgroundColor: '#5D9239',
     color: '#fff',
@@ -317,7 +307,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2e7d32',
     paddingVertical: 14,
     borderRadius: 50,
-    marginTop: 20,
+    marginTop: 30,
+    marginBottom: 40,
   },
   buttonText: {
     color: '#fff',

@@ -1,4 +1,4 @@
-// app/sensor-reading.tsx
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 export default function SensorReadingScreen() {
@@ -21,13 +21,13 @@ export default function SensorReadingScreen() {
 
     if (isReading && currentStep < 5) {
       timeout = setTimeout(() => {
-        setCurrentStep(prev => prev + 1);
+        setCurrentStep((prev) => prev + 1);
       }, 1500);
     } else if (currentStep === 5 && !isComplete) {
       setIsComplete(true);
       timeout = setTimeout(() => {
         router.push('/recommendation');
-      }, 3000); // Add delay before routing
+      }, 4000);
     }
 
     return () => clearTimeout(timeout);
@@ -38,46 +38,53 @@ export default function SensorReadingScreen() {
     setCurrentStep(1);
   };
 
-  const renderReadingLine = (index: number) => {
-    const label = `${index}/5 - Soil sample`;
-    const isCompleted = currentStep > index;
-    const isCurrent = currentStep === index;
-
-    return (
-      <View key={index} style={styles.readingLine}>
-        <Text style={styles.readingText}>{label}</Text>
-        {isCompleted ? (
-          <Image
-            source={require('../assets/images/checkmark.png')}
-            style={styles.checkIcon}
-          />
-        ) : isCurrent ? (
-          <ActivityIndicator size="small" color="#2e7d32" />
-        ) : null}
-      </View>
-    );
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Insert Sensor to the Soil</Text>
-      <Text style={styles.subtitle}>
-        The system will take 5 automatic readings from different soil spots, including pH level.
-      </Text>
+      {/* Logo (Always on Top) */}
+      <Image
+        source={require('../assets/images/fertisense-logo.png')}
+        style={styles.logo}
+      />
 
-      <View style={styles.readingsContainer}>
-        {[1, 2, 3, 4, 5].map(index => renderReadingLine(index))}
+      {/* Reading Box */}
+      <View style={styles.readingBox}>
+        <Text style={styles.title}>Insert the Sensor into the Soil</Text>
+
+        <Text style={styles.engSub}>
+          The system will take 5 readings from different soil spots, including pH level.
+        </Text>
+        <Text style={styles.tagalogSub}>
+          Kukuha ang sistema ng 5 readings mula sa iba't ibang bahagi ng lupa, kabilang ang pH level.
+        </Text>
+
+        {isReading && currentStep <= 5 && (
+          <>
+            <ActivityIndicator
+              size="large"
+              color="#2e7d32"
+              style={{ marginTop: 20, marginBottom: 12 }}
+            />
+            <Text style={styles.readingStep}>
+              📍 {currentStep}/5 - Reading soil...
+            </Text>
+          </>
+        )}
+
+        {isComplete && (
+          <View style={styles.successBox}>
+            <Ionicons name="checkmark-circle" size={50} color="#2e7d32" />
+            <Text style={styles.successText}>
+              Success! Completed soil reading. Please wait for recommendation...
+            </Text>
+          </View>
+        )}
       </View>
 
-      {isComplete && (
-        <Text style={styles.successMessage}>
-          ✅ Reading successful! Please wait for fertilizer recommendation...
-        </Text>
-      )}
-
+      {/* Start Button Outside Box */}
       {!isReading && !isComplete && (
-        <TouchableOpacity style={styles.button} onPress={handleStart}>
-          <Text style={styles.buttonText}>Start Soil Reading</Text>
+        <TouchableOpacity style={styles.startButton} onPress={handleStart}>
+          <Ionicons name="hardware-chip-outline" size={22} color="#fff" />
+          <Text style={styles.startText}>  Simulan ang Pagbasa</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -87,64 +94,84 @@ export default function SensorReadingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 30,
-    justifyContent: 'center',
-    paddingTop: 80,
+    backgroundColor: '#ffffffff',
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingHorizontal: 24,
+    justifyContent: 'flex-start',
+  },
+  logo: {
+    bottom: 12,
+    width: 220,
+    height: 220,
+    resizeMode: 'contain',
+    marginBottom: -30,
+  },
+  readingBox: {
+    backgroundColor: '#f1fbf1',
+    padding: 26,
+    borderRadius: 18,
+    width: '100%',
+    elevation: 5,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#2e7d32',
+    fontFamily: 'Poppins_700Bold',
     textAlign: 'center',
-    marginBottom: 12,
-  },
-  subtitle: {
-    textAlign: 'center',
-    fontSize: 15,
-    color: '#555',
-    marginBottom: 30,
-    paddingHorizontal: 10,
-  },
-  readingsContainer: {
-    backgroundColor: '#f1fbf1',
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 30,
-    elevation: 3,
-  },
-  readingLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 14,
-  },
-  readingText: {
-    fontSize: 16,
-    flex: 1,
-    color: '#333',
-  },
-  checkIcon: {
-    width: 20,
-    height: 20,
-    resizeMode: 'contain',
-  },
-  successMessage: {
-    textAlign: 'center',
-    color: '#2e7d32',
-    fontSize: 16,
-    fontWeight: '600',
     marginBottom: 20,
   },
-  button: {
-    backgroundColor: '#2e7d32',
-    paddingVertical: 14,
-    paddingHorizontal: 50,
-    borderRadius: 30,
-    alignSelf: 'center',
+  engSub: {
+    fontSize: 15,
+    color: '#555',
+    textAlign: 'center',
+    fontFamily: 'Poppins_400Regular',
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+  tagalogSub: {
+    fontSize: 13,
+    color: '#555',
+    textAlign: 'center',
+    fontFamily: 'Poppins_400Regular',
+    fontStyle: 'italic',
+    marginBottom: 20,
+    marginTop: 6,
+  },
+  readingStep: {
     fontSize: 16,
+    color: '#2e7d32',
+    fontFamily: 'Poppins_600SemiBold',
+    textAlign: 'center',
+  },
+  successBox: {
+    backgroundColor: '#d1f7d6',
+    padding: 20,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginTop: 20,
+    width: '100%',
+  },
+  successText: {
+    fontSize: 15,
+    color: '#1b5e20',
+    fontFamily: 'Poppins_600SemiBold',
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  startButton: {
+    marginTop: 28,
+    backgroundColor: '#2e7d32',
+    flexDirection: 'row',
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  startText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Poppins_600SemiBold',
   },
 });

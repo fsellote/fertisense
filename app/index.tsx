@@ -60,9 +60,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   logo: {
-    width: 300,
-    height: 220,
-    marginBottom: 60,
+    width: 350,
+    height: 250,
+    marginBottom: -20 ,
     marginTop: -60, 
   },
   tagline: {
