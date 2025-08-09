@@ -1,55 +1,96 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
 
 export default function ConnectInstructionsScreen() {
   const router = useRouter();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-
       {/* Back Button */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => router.replace('/(stakeholder)/stakeholder-home')} // ✅ corrected path
-      >
-        <Ionicons name="arrow-back" size={24} color="#333" />
-      </TouchableOpacity>
+    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <Ionicons name="arrow-back" size={24} color="#333" />
+    </TouchableOpacity>
 
       {/* Logo */}
       <Image
-        source={require('../../assets/images/fertisense-logo.png')}
+        source={require('../../../assets/images/fertisense-logo.png')}
         style={styles.logo}
         resizeMode="contain"
       />
 
+
+
       {/* Title */}
       <Text style={styles.title}>Connect to Device</Text>
 
-      {/* Green-bordered box */}
+      {/* Instruction Box */}
       <View style={styles.box}>
         <Text style={styles.boxIntro}>
           Bago makita ang datos, ikonekta muna ang device sa iyong cellphone.
         </Text>
 
-        {/* Steps with Icons */}
+        {/* Step 1 */}
         <View style={styles.stepRow}>
-          <Image source={require('../../assets/images/power.png')} style={styles.icon} />
+          <View style={styles.iconWrapper}>
+            <Image
+              source={require('../../../assets/images/power.png')}
+              style={styles.iconPower}
+            />
+          </View>
           <Text style={styles.stepText}>I-on ang iyong sensor device.</Text>
         </View>
 
+        {/* Step 2 */}
         <View style={styles.stepRow}>
-          <Image source={require('../../assets/images/bluetooth.png')} style={styles.icon} />
+          <View style={styles.iconWrapper}>
+            <Image
+              source={require('../../../assets/images/bluetooth.png')}
+              style={styles.iconBluetooth}
+            />
+          </View>
           <Text style={styles.stepText}>Buksan ang Bluetooth ng iyong cellphone.</Text>
         </View>
 
+        {/* Step 3 */}
         <View style={styles.stepRow}>
-          <Image source={require('../../assets/images/sensor.png')} style={styles.icon} />
+          <View style={styles.iconWrapper}>
+            <Image
+              source={require('../../../assets/images/sensor.png')}
+              style={styles.iconSensor}
+            />
+          </View>
           <Text style={styles.stepText}>Pindutin ang ‘Connect’ upang hanapin ang device.</Text>
         </View>
 
+        {/* Step 4 */}
         <View style={styles.stepRow}>
-          <Image source={require('../../assets/images/check.png')} style={styles.icon} />
+          <View style={styles.iconWrapper}>
+            <Image
+              source={require('../../../assets/images/rice.png')}
+              style={styles.iconRiceType}
+            />
+          </View>
+          <Text style={styles.stepText}>
+            Pumili kung anong uri ng palay ang iyong itatanim.
+          </Text>
+        </View>
+
+        {/* Step 5 */}
+        <View style={styles.stepRow}>
+          <View style={styles.iconWrapper}>
+            <Image
+              source={require('../../../assets/images/check.png')}
+              style={styles.iconCheck}
+            />
+          </View>
           <Text style={styles.stepText}>
             Hintaying kumonekta o makita ang ‘Successful’ na status.
           </Text>
@@ -59,9 +100,10 @@ export default function ConnectInstructionsScreen() {
       {/* Proceed Button */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/(stakeholder)/stakeholder-home')} // ✅ optional: or navigate to connection logic
+        onPress={() => router.push('/(stakeholder)/screens/select-options')}
+        
       >
-        <Text style={styles.buttonText}>Magpatuloy</Text>
+        <Text style={styles.buttonText}>Connect</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -83,8 +125,9 @@ const styles = StyleSheet.create({
   logo: {
     width: 190,
     height: 180,
-    marginBottom: 0,
-    marginTop: 10
+    marginBottom: -20,
+    marginTop: 10,
+    top: 10,
   },
   title: {
     fontSize: 20,
@@ -114,12 +157,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 14,
   },
-  icon: {
-    width: 25,
-    height: 24,
-    marginRight: 12,
-    marginTop: -1,
-    resizeMode: 'contain',
+  iconWrapper: {
+    width: 35,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
   },
   stepText: {
     fontSize: 16,
@@ -127,9 +169,33 @@ const styles = StyleSheet.create({
     flex: 1,
     flexWrap: 'wrap',
   },
+  iconPower: {
+    width: 25,
+    height: 25,
+    resizeMode: 'contain',
+  },
+  iconBluetooth: {
+    width: 24,
+    height: 24,
+    resizeMode: 'contain',
+  },
+  iconSensor: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
+  },
+  iconRiceType: {
+    width: 20,
+    height: 27,
+    resizeMode: 'contain',
+  },
+  iconCheck: {
+    width: 30,
+    height: 40,
+    resizeMode: 'contain',
+  },
   button: {
     backgroundColor: '#2e7d32',
-    top: 20,
     paddingVertical: 13,
     paddingHorizontal: 100,
     borderRadius: 50,

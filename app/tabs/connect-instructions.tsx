@@ -15,9 +15,9 @@ export default function ConnectInstructionsScreen() {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Back Button */}
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#333" />
-      </TouchableOpacity>
+    <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <Ionicons name="arrow-back" size={24} color="#333" />
+    </TouchableOpacity>
 
       {/* Logo */}
       <Image

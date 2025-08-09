@@ -1,43 +1,89 @@
-import { createContext, ReactNode, useContext, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
-// ✅ Updated User type with stakeholder fields
-type User = {
+// 👤 User type definition
+export type User = {
   name: string;
-  email?: string; // optional as per your register form
+  email?: string;
   role: 'admin' | 'stakeholder' | 'guest';
   address?: string;
   farmLocation?: string;
   mobile?: string;
-} | null;
-
-type AuthContextType = {
-  user: User;
-  login: (userData: User) => void;
-  logout: () => void;
+  profileImage?: string | null;
 };
 
+// 🔒 Auth context type
+type AuthContextType = {
+  user: User | null;
+  login: (userData: User) => void;
+  logout: () => void;
+  updateUser: (updatedFields: Partial<User>) => void;
+};
+
+// 📦 Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// 🧠 AuthProvider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<User | null>(null);
 
-  const login = (userData: User) => {
-    setUser(userData);
+  // 📥 Load user from AsyncStorage on mount
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+        }
+      } catch (error) {
+        console.error('Failed to load user from AsyncStorage:', error);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  // 🔐 Login
+  const login = async (userData: User) => {
+    try {
+      setUser(userData);
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
+  // 🔓 Logout
+  const logout = async () => {
+    try {
+      setUser(null);
+      await AsyncStorage.removeItem('user');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
+  // 🔄 Update user
+  const updateUser = async (updatedFields: Partial<User>) => {
+    setUser((prevUser) => {
+      if (!prevUser) return prevUser;
+
+      const updatedUser = { ...prevUser, ...updatedFields };
+      AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+      return updatedUser;
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// 🪝 Hook for consuming auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };

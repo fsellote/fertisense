@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    Image,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 export default function SensorReadingScreen() {
@@ -26,7 +26,7 @@ export default function SensorReadingScreen() {
     } else if (currentStep === 10 && !isComplete) {
       setIsComplete(true);
       timeout = setTimeout(() => {
-        router.push('/recommendation');
+        router.push('/(stakeholder)/screens/recommendation');
       }, 4000);
     }
 
@@ -42,7 +42,7 @@ export default function SensorReadingScreen() {
     <View style={styles.container}>
       {/* Logo */}
       <Image
-        source={require('../assets/images/fertisense-logo.png')}
+        source={require('../../../assets/images/fertisense-logo.png')}
         style={styles.logo}
       />
 

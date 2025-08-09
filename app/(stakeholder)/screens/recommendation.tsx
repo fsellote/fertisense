@@ -12,8 +12,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useData } from '../context/DataContext';
-import { FertilizerPrices, useFertilizer } from '../context/FertilizerContext';
+import { useData } from '../../../context/DataContext';
+import { FertilizerPrices, useFertilizer } from '../../../context/FertilizerContext';
 
 export default function RecommendationScreen() {
   const router = useRouter();
@@ -59,49 +59,51 @@ export default function RecommendationScreen() {
   const phStatus =
     phValue < 5.5 ? 'Acidic' : phValue > 7.5 ? 'Alkaline' : 'Neutral';
 
-useEffect(() => {
-  const today = new Date().toLocaleDateString();
+  // ✅ Save reading automatically
+  useEffect(() => {
+    const today = new Date().toLocaleDateString();
 
-  const fertilizerPlans = Object.entries(fertilizerAmounts).map(
-    ([_, items], index) => ({
-      stage: `Plan ${index + 1}`,
-      type: Object.keys(items)
-        .map((k) => k.toUpperCase())
-        .join(', '),
-      amount: Object.values(items)
-        .map((v) => v?.toString() ?? '0')
-        .join(', '),
-      price: totalPrice(items), // price as number (no ₱ here)
-    })
-  );
+    const fertilizerPlans = Object.entries(fertilizerAmounts).map(
+      ([_, items], index) => ({
+        stage: `Plan ${index + 1}`,
+        type: Object.keys(items)
+          .map((k) => k.toUpperCase())
+          .join(', '),
+        amount: Object.values(items)
+          .map((v) => v?.toString() ?? '0')
+          .join(', '),
+        price: totalPrice(items),
+      })
+    );
 
-  const data = {
-    name: nameStr,
-    code: codeStr,
-    date: today,
-    n: nValue,
-    p: pValue,
-    k: kValue,
-    ph: phValue,
-    recommendation: [recommendationText, englishText],
-    fertilizerPlans,
-  };
+    const data = {
+      name: nameStr,
+      code: codeStr,
+      date: today,
+      n: nValue,
+      p: pValue,
+      k: kValue,
+      ph: phValue,
+      recommendation: [recommendationText, englishText],
+      fertilizerPlans,
+    };
 
-  const exists = readings.some(
-    (r) =>
-      r.code === codeStr &&
-      r.n === nValue &&
-      r.p === pValue &&
-      r.k === kValue &&
-      r.ph === phValue &&
-      r.date === today
-  );
+    const exists = readings.some(
+      (r) =>
+        r.code === codeStr &&
+        r.n === nValue &&
+        r.p === pValue &&
+        r.k === kValue &&
+        r.ph === phValue &&
+        r.date === today
+    );
 
-  if (!exists && nameStr && codeStr) {
-    addReading(data); // ✅ fixed
-  }
-}, []);
+    if (!exists && nameStr && codeStr) {
+      addReading(data);
+    }
+  }, []);
 
+  // 📄 PDF export
   const handleSavePDF = async () => {
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
@@ -188,11 +190,12 @@ useEffect(() => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image
-        source={require('../assets/images/fertisense-logo.png')}
+        source={require('../../../assets/images/fertisense-logo.png')}
         style={styles.logo}
         resizeMode="contain"
       />
 
+      {/* 📊 pH Result */}
       <View style={styles.phBox}>
         <Text style={styles.phLabel}>📊 pH Level Result:</Text>
         <Text style={styles.phValue}>
@@ -205,6 +208,7 @@ useEffect(() => {
         </Text>
       </View>
 
+      {/* 📝 Recommendation */}
       <View style={styles.recommendationBox}>
         <Text style={styles.recommendationTitle}>
           Rekomendasyon: <Text style={{ fontStyle: 'italic' }}>(Recommendation)</Text>
@@ -213,18 +217,19 @@ useEffect(() => {
         <Text style={styles.englishText}>{englishText}</Text>
       </View>
 
+      {/* ✅ Action Checklist */}
       <View style={styles.checkItem}>
-        <Image source={require('../assets/images/checkmark.png')} style={styles.checkIcon} />
+        <Image source={require('../../../assets/images/checkmark.png')} style={styles.checkIcon} />
         <Text style={styles.checkText}>Maglagay ng Superphosphate (P) na abono.</Text>
       </View>
       <View style={styles.checkItem}>
-        <Image source={require('../assets/images/checkmark.png')} style={styles.checkIcon} />
+        <Image source={require('../../../assets/images/checkmark.png')} style={styles.checkIcon} />
         <Text style={styles.checkText}>Hindi kailangang magdilig.</Text>
       </View>
 
+      {/* Fertilizer Table */}
       <View style={styles.divider} />
       <Text style={styles.sectionTitle}>Fertilizer Recommendations</Text>
-
       {Object.entries(fertilizerAmounts).map(([key, items], index) => (
         <View key={key} style={styles.table}>
           <View style={styles.tableHeader}>
@@ -252,17 +257,18 @@ useEffect(() => {
         </View>
       ))}
 
-      {/* 🔻 Sleek toggle-style PDF Save Option */}
+      {/* 📄 PDF Download */}
       <View style={styles.downloadToggle}>
-        <Text style={styles.downloadLabel}></Text>
+        <Text style={styles.downloadLabel}>Save a copy of this report</Text>
         <TouchableOpacity onPress={handleSavePDF}>
           <Text style={styles.downloadButton}>📄 Download PDF</Text>
         </TouchableOpacity>
       </View>
 
+      {/* 🔙 Back Home */}
       <TouchableOpacity
         style={styles.button}
-        onPress={() => router.push('/tabs/admin-home')}
+        onPress={() => router.push('/(stakeholder)/tabs/stakeholder-home')}
       >
         <Text style={styles.buttonText}>Back to Home Screen</Text>
       </TouchableOpacity>
@@ -304,6 +310,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 10,
     marginBottom: 20,
+    backgroundColor: '#f8fff9',
   },
   recommendationTitle: {
     fontSize: 16,
@@ -325,6 +332,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     marginBottom: 12,
+    backgroundColor: '#fdfdfd',
   },
   checkIcon: {
     width: 20,
@@ -407,11 +415,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
     borderTopWidth: 3,
     borderColor: '#417d44ff',
-    
     paddingVertical: 10,
   },
   downloadLabel: {
     color: '#444',
+    fontSize: 13,
   },
   downloadButton: {
     fontSize: 15,

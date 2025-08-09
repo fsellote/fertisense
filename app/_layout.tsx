@@ -1,4 +1,4 @@
-import { Slot } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,7 +14,6 @@ import { AuthProvider } from '../context/AuthContext';
 import { DataProvider } from '../context/DataContext';
 import { FertilizerProvider } from '../context/FertilizerContext';
 
-// ⛔️ Prevent splash from hiding until fonts load
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -26,12 +25,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded) {
-      // ✅ Once fonts are ready, hide splash screen
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
 
-  // ⛔️ Don't render app until fonts are ready
   if (!fontsLoaded) return null;
 
   return (
@@ -39,7 +36,11 @@ export default function RootLayout() {
       <AuthProvider>
         <DataProvider>
           <FertilizerProvider>
-            <Slot />
+            <Stack screenOptions={{ headerShown: false }}>
+              {/* This allows the modal and all screens inside Slot to render properly */}
+              <Stack.Screen name="(stakeholder)" options={{ headerShown: false }} />
+              <Stack.Screen name="(guest)" options={{ headerShown: false }} />
+            </Stack>
           </FertilizerProvider>
         </DataProvider>
       </AuthProvider>

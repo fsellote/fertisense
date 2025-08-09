@@ -1,177 +1,227 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
-import { useFertilizerPrices } from '../context/FertilizerContext';
+import { useFertilizer } from '../context/FertilizerContext';
+
+const fertilizerLabels: { [key in keyof ReturnType<typeof useFertilizer>['prices']]: string } = {
+  urea: 'Urea (Nitrogen)',
+  ssp: 'SSP (Phosphorus)',
+  mop: 'MOP (Potassium)',
+  dap: 'DAP',
+  npk: 'NPK',
+};
+
+const fertilizerIcons: { [key in keyof ReturnType<typeof useFertilizer>['prices']]: React.ReactNode } = {
+  urea: <MaterialIcons name="eco" size={24} color="#2e7d32" />,
+  ssp: <MaterialIcons name="science" size={24} color="#2e7d32" />,
+  mop: <MaterialIcons name="opacity" size={24} color="#2e7d32" />,
+  dap: <MaterialIcons name="local-florist" size={24} color="#2e7d32" />,
+  npk: <MaterialIcons name="spa" size={24} color="#2e7d32" />,
+};
 
 export default function EditPriceScreen() {
   const router = useRouter();
-  const { prices, setPrices } = useFertilizerPrices();
+  const { prices, setPrices } = useFertilizer();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedKey, setSelectedKey] = useState<keyof typeof prices | null>(null);
+  const [inputPrice, setInputPrice] = useState('');
 
-  const [nPrice, setNPrice] = useState('');
-  const [pPrice, setPPrice] = useState('');
-  const [kPrice, setKPrice] = useState('');
-
-  const [isValid, setIsValid] = useState(false);
-
-  // Validate all inputs are numeric
-  useEffect(() => {
-    const isNumeric = (val: string) => /^\d+(\.\d{1,2})?$/.test(val);
-    setIsValid(
-      isNumeric(nPrice) && isNumeric(pPrice) && isNumeric(kPrice)
-    );
-  }, [nPrice, pPrice, kPrice]);
+  const openModal = (key: keyof typeof prices) => {
+    setSelectedKey(key);
+    setInputPrice(prices[key].toString());
+    setModalVisible(true);
+  };
 
   const handleSave = () => {
+    if (!selectedKey) return;
+
+    const newPrice = parseFloat(inputPrice);
+    if (isNaN(newPrice) || newPrice <= 0) {
+      Alert.alert('Invalid Input', 'Please enter a valid positive number.');
+      return;
+    }
+
     setPrices({
       ...prices,
-      urea: parseFloat(nPrice),
-      ssp: parseFloat(pPrice),
-      mop: parseFloat(kPrice),
+      [selectedKey]: newPrice,
     });
 
-    Alert.alert('✅ Prices Updated', 'Fertilizer prices have been saved.');
-    router.back();
+    setModalVisible(false);
+    Alert.alert('✅ Updated', `${fertilizerLabels[selectedKey]} price updated!`);
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Fertilizer Price</Text>
-        <Text style={styles.headerSubtitle}>Department of Agriculture</Text>
+        <Text style={styles.headerTitle}>Edit Fertilizer Prices</Text>
+        <Text style={styles.headerSubtitle}>Department of Agriculture – Admin Panel</Text>
       </View>
 
-      {/* Inputs */}
-      <View style={styles.card}>
-        <Text style={styles.label}>🌾 Nitrogen (Urea - N)</Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          value={nPrice}
-          onChangeText={setNPrice}
-          placeholder="e.g. 50"
-        />
-      </View>
+      {/* Fertilizer List */}
+      <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
+        {Object.entries(prices).map(([key, value]) => (
+          <View key={key} style={styles.card}>
+            <View style={styles.left}>
+              {fertilizerIcons[key as keyof typeof prices]}
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.label}>{fertilizerLabels[key as keyof typeof prices]}</Text>
+                <Text style={styles.price}>₱ {value.toFixed(2)}</Text>
+              </View>
+            </View>
+            <TouchableOpacity onPress={() => openModal(key as keyof typeof prices)}>
+              <Ionicons name="pencil" size={22} color="#2e7d32" />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
 
-      <View style={styles.card}>
-        <Text style={styles.label}>🧪 Phosphorus (SSP - P)</Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          value={pPrice}
-          onChangeText={setPPrice}
-          placeholder="e.g. 45"
-        />
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>🧂 Potassium (MOP - K)</Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          value={kPrice}
-          onChangeText={setKPrice}
-          placeholder="e.g. 60"
-        />
-      </View>
-
-      {/* Save Button */}
-      <TouchableOpacity
-        style={[
-          styles.saveButton,
-          !isValid && { backgroundColor: '#aaa' },
-        ]}
-        onPress={handleSave}
-        disabled={!isValid}
-      >
-        <Text style={styles.saveText}>💾 Save Changes</Text>
-      </TouchableOpacity>
-    </ScrollView>
+      {/* Modal */}
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              Edit Price for {selectedKey ? fertilizerLabels[selectedKey] : ''}
+            </Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={inputPrice}
+              onChangeText={setInputPrice}
+              placeholder="Enter new price"
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.cancelBtn}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleSave} style={styles.saveBtn}>
+                <Text style={styles.saveText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
 
+// === Styles ===
+
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     backgroundColor: '#f7fdf7',
-    padding: 20,
-    paddingBottom: 40,
+    paddingHorizontal: 20,
   },
   header: {
     backgroundColor: '#2e7d32',
-    paddingTop: 50,
+    paddingTop: 60,
     paddingBottom: 30,
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
     alignItems: 'center',
+    marginBottom: 20,
     position: 'relative',
-    marginBottom: 30,
   },
   backButton: {
     position: 'absolute',
     left: 20,
-    top: 50,
+    top: 60,
   },
   headerTitle: {
     color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',
-    fontFamily: 'Poppins_700Bold',
   },
   headerSubtitle: {
-    color: '#d0ebd0',
+    color: '#c8e6c9',
     fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
-    marginTop: 4,
+    marginTop: 5,
   },
   card: {
     backgroundColor: '#fff',
     borderRadius: 15,
     padding: 16,
-    marginBottom: 20,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    marginBottom: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    elevation: 3,
+  },
+  left: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   label: {
     fontSize: 15,
     fontWeight: '600',
     color: '#2e7d32',
-    marginBottom: 10,
-    fontFamily: 'Poppins_600SemiBold',
+  },
+  price: {
+    fontSize: 14,
+    color: '#555',
+    marginTop: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 15,
+    color: '#2e7d32',
   },
   input: {
-    borderWidth: 1.2,
+    borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 12,
-    fontSize: 15,
-    fontFamily: 'Poppins_400Regular',
+    fontSize: 16,
+    marginBottom: 20,
   },
-  saveButton: {
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  cancelBtn: {
+    marginRight: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  cancelText: {
+    color: '#888',
+    fontSize: 15,
+  },
+  saveBtn: {
     backgroundColor: '#2e7d32',
-    paddingVertical: 14,
-    borderRadius: 30,
-    alignItems: 'center',
-    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
   },
   saveText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
-    fontFamily: 'Poppins_600SemiBold',
   },
 });

@@ -1,183 +1,250 @@
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
+  Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
+import type { User } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  const handleLogin = () => {
-    if (!email || !password) {
-      setError('Please fill in all fields.');
-      return;
-    }
+const handleLogin = async () => {
+  const trimmedEmail = email.trim().toLowerCase();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setError('Please enter a valid email.');
-      return;
-    }
+  if (!trimmedEmail || !password) {
+    setError('Please fill in all fields.');
+    return;
+  }
 
-    setError('');
-    if (email.trim().toLowerCase() === 'admin@fertisense.com') {
-      router.replace('/tabs/admin-home');
-    } else {
-      router.replace('/(stakeholder)/stakeholder-home');
-    }
+// Inside handleLogin:
+if (email === 'admin@fertisense.com' && password === 'admin') {
+  const adminUser: User = {
+    name: 'Admin',
+    email: 'admin@fertisense.com',
+    role: 'admin',
+    address: '',
+    farmLocation: '',
+    mobile: '',
+    profileImage: null,
   };
 
+  login(adminUser);
+  setError('');
+  Alert.alert('Success', 'Logged in as Admin!');
+  router.replace('/tabs/admin-home');
+  return;
+}
+  // 👇 Stakeholder login continues here
+  try {
+    const storedUser = await AsyncStorage.getItem(`registeredUser:${trimmedEmail}`);
+
+    if (!storedUser) {
+      setError('Account does not exist.');
+      return;
+    }
+
+    const parsedUser = JSON.parse(storedUser);
+
+    if (parsedUser.password !== password) {
+      setError('Incorrect password.');
+      return;
+    }
+
+    login(parsedUser); // Save in context
+    setError('');
+    Alert.alert('Success', 'Logged in successfully!');
+    router.replace('/(stakeholder)/tabs/stakeholder-home');
+  } catch (e) {
+    console.error('Login error:', e);
+    setError('An error occurred during login.');
+  }
+};
+
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="arrow-back" size={24} color="#333" />
-      </TouchableOpacity>
-
-      <Image
-        source={require('../assets/images/fertisense-logo.png')}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-
-      <View style={styles.tabContainer}>
-        <Text style={styles.tabActive}>Log In</Text>
-        <TouchableOpacity onPress={() => router.push('/register')}>
-          <Text style={styles.tabInactive}>Sign Up</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={22} color="#333" />
         </TouchableOpacity>
-      </View>
 
-      <Text style={styles.label}>Your Email</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="you@gmail.com"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
+        <Image
+          source={require('../assets/images/fertisense-logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
 
-      <Text style={styles.label}>Password</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="********"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <View style={styles.tabContainer}>
+          <Text style={styles.tabActive}>Log In</Text>
+          <TouchableOpacity onPress={() => router.push('/register')}>
+            <Text style={styles.tabInactive}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
 
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+        <Text style={styles.label}>Email *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="you@example.com"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          value={email}
+          onChangeText={setEmail}
+        />
 
-      <TouchableOpacity onPress={() => router.push('/forgot-password')}>
-        <Text style={styles.forgotPassword}>Forgot password?</Text>
-      </TouchableOpacity>
+        <Text style={styles.label}>Password *</Text>
+        <View style={styles.passwordInputContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="********"
+            secureTextEntry={!showPassword}
+            value={password}
+            autoCapitalize="none"
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? 'eye-off' : 'eye'}
+              size={20}
+              color="#999"
+              style={{ marginRight: 10 }}
+            />
+          </TouchableOpacity>
+        </View>
 
-      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Log in</Text>
-      </TouchableOpacity>
+        {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Don’t have an account?</Text>
-        <TouchableOpacity onPress={() => router.push('/register')}>
-          <Text style={styles.footerLink}> Sign up</Text>
+        <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
-      </View>
-    </View>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Don't have an account?</Text>
+          <TouchableOpacity onPress={() => router.push('/register')}>
+            <Text style={styles.footerLink}> Sign up</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    padding: 24,
     backgroundColor: '#fff',
-    paddingHorizontal: 24,
+    flexGrow: 1,
     justifyContent: 'center',
   },
   backButton: {
     position: 'absolute',
-    top: 50,
-    left: 20,
+    top: 85,
+    left: 25,
     zIndex: 10,
   },
   logo: {
-    width: 200,
-    height: 200,
+    width: 220,
+    height: 220,
     alignSelf: 'center',
-    top: 12,
-    marginTop: -130,
+    marginTop: -160,
+    marginBottom: -20,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 24,
+    marginBottom: 15,
   },
   tabActive: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#2e7d32',
-    marginRight: 16,
     borderBottomWidth: 2,
     borderBottomColor: '#2e7d32',
-    paddingBottom: 4,
+    paddingBottom: 1,
   },
   tabInactive: {
-    fontSize: 16,
+    fontSize: 15,
     color: '#999',
-    paddingBottom: 4,
+    marginLeft: 16,
+    paddingBottom: 3,
   },
   label: {
-    marginBottom: 4,
     fontSize: 14,
-    color: '#444',
+    marginBottom: 3,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     padding: 12,
-    marginBottom: 16,
+    fontSize: 14,
+    marginBottom: 9,
   },
-  forgotPassword: {
-    color: '#1976d2',
-    textAlign: 'right',
-    marginBottom: 24,
+  passwordInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    marginBottom: 9,
+  },
+  passwordInput: {
+    flex: 1,
+    padding: 12,
+    fontSize: 14,
   },
   loginButton: {
     backgroundColor: '#2e7d32',
     paddingVertical: 14,
-    paddingHorizontal: 40,
     borderRadius: 50,
-    width: '100%',
-    marginBottom: 50,
+    marginTop: 10,
   },
   buttonText: {
     color: '#fff',
     textAlign: 'center',
     fontWeight: 'bold',
+    fontSize: 15,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    fontSize: 13,
+    marginBottom: 8,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
+    marginTop: 20,
   },
   footerText: {
     color: '#444',
+    fontSize: 13,
   },
   footerLink: {
     color: '#1976d2',
     fontWeight: '600',
-  },
-  errorText: {
-    color: 'red',
-    marginBottom: 16,
-    textAlign: 'center',
+    fontSize: 13,
   },
 });

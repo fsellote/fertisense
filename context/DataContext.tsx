@@ -1,12 +1,31 @@
-import React, { createContext, ReactNode, useContext, useState } from 'react';
+// context/DataContext.tsx
 
-// Type Definitions
-export type Farmer = {
-  id: string;
-  name: string;
-  code: string;
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useState,
+} from 'react';
+
+// --- Types ---
+// Fertilizer plan per stage
+export type FertilizerPlan = {
+  stage: string;
+  type: string;
+  amount: string;
+  price: number; // number for calculations
 };
 
+// Sensor data structure
+export type SensorData = {
+  timestamp: string;
+  n: number;
+  p: number;
+  k: number;
+  ph?: number;
+};
+
+// Reading data (collected data + recommendations)
 export type Reading = {
   name: string;
   code: string;
@@ -14,57 +33,65 @@ export type Reading = {
   n: number;
   p: number;
   k: number;
-  recommendation: string[];
+  ph?: number;
+  recommendation?: string[]; // [filipino, english]
+  sensorData?: SensorData[];
+  fertilizerPlans?: FertilizerPlan[];
 };
 
-// Define the context shape
+// Farmer info
+export type Farmer = {
+  id: string;
+  name: string;
+  code: string;
+  location: string;
+  farmSize: string;
+  riceType: string;
+  cropStyle: string;
+};
+
+// Context shape
 type DataContextType = {
-  farmers: Farmer[];
-  addFarmer: (farmer: Farmer) => void;
   readings: Reading[];
+  setReadings: React.Dispatch<React.SetStateAction<Reading[]>>;
   addReading: (reading: Reading) => void;
-  deleteReading: (index: number) => void;
-  updateReading: (index: number, updated: Reading) => void;
+
+  farmers: Farmer[];
+  setFarmers: React.Dispatch<React.SetStateAction<Farmer[]>>;
+  addFarmer: (farmer: Farmer) => void;
+
+  latestSensorData: SensorData | null;
+  setLatestSensorData: React.Dispatch<React.SetStateAction<SensorData | null>>;
 };
 
 // Create context
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Provider props
-type DataProviderProps = {
-  children: ReactNode;
-};
-
-// Context Provider
-export const DataProvider = ({ children }: DataProviderProps) => {
-  const [farmers, setFarmers] = useState<Farmer[]>([]);
+// Provider
+export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [readings, setReadings] = useState<Reading[]>([]);
-
-  const addFarmer = (farmer: Farmer) => {
-    setFarmers((prev) => [...prev, farmer]);
-  };
+  const [farmers, setFarmers] = useState<Farmer[]>([]);
+  const [latestSensorData, setLatestSensorData] = useState<SensorData | null>(null);
 
   const addReading = (reading: Reading) => {
-    setReadings((prev) => [...prev, reading]);
+    setReadings(prev => [...prev, reading]);
   };
 
-  const deleteReading = (index: number) => {
-    setReadings((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const updateReading = (index: number, updated: Reading) => {
-    setReadings((prev) => prev.map((item, i) => (i === index ? updated : item)));
+  const addFarmer = (farmer: Farmer) => {
+    setFarmers(prev => [...prev, farmer]);
   };
 
   return (
     <DataContext.Provider
       value={{
-        farmers,
-        addFarmer,
         readings,
+        setReadings,
         addReading,
-        deleteReading,
-        updateReading,
+        farmers,
+        setFarmers,
+        addFarmer,
+        latestSensorData,
+        setLatestSensorData,
       }}
     >
       {children}
@@ -72,7 +99,7 @@ export const DataProvider = ({ children }: DataProviderProps) => {
   );
 };
 
-// Hook to use context
+// Hook
 export const useData = (): DataContextType => {
   const context = useContext(DataContext);
   if (!context) {

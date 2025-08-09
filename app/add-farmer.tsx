@@ -3,7 +3,8 @@ import { Picker } from '@react-native-picker/picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert,
+  Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -23,10 +24,11 @@ export default function AddFarmerScreen() {
   const [farmSize, setFarmSize] = useState('');
   const [riceType, setRiceType] = useState('');
   const [cropStyle, setCropStyle] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleSave = () => {
     if (!name || !location || !farmSize || !riceType || !cropStyle) {
-      Alert.alert('📌 Kulang na Impormasyon', 'Pakiusap, punan ang lahat ng detalye.');
+      setShowSuccessModal(true); // Reuse modal for error if needed
       return;
     }
 
@@ -37,11 +39,14 @@ export default function AddFarmerScreen() {
       id,
       name,
       code: farmerCode,
+      location,
+      farmSize,
+      riceType,
+      cropStyle,
     };
 
     addFarmer(newFarmer);
 
-    // Create default reading entry
     const today = new Date().toLocaleDateString();
     addReading({
       name,
@@ -50,10 +55,15 @@ export default function AddFarmerScreen() {
       n: 0,
       p: 0,
       k: 0,
+      ph: 0,
       recommendation: [],
     });
 
-    Alert.alert('✅ Naidagdag ang Magsasaka', `Pangalan: ${name}\nLokasyon: ${location}`);
+    setShowSuccessModal(true);
+  };
+
+  const closeModal = () => {
+    setShowSuccessModal(false);
     router.push('/tabs/connect-instructions');
   };
 
@@ -62,9 +72,9 @@ export default function AddFarmerScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={26} color="#fff" />
+          <Ionicons name="arrow-back" size={22} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile ng Magsasaka</Text>
+        <Text style={styles.headerTitle}>Add a Farmer Data</Text>
       </View>
 
       {/* Form */}
@@ -99,11 +109,7 @@ export default function AddFarmerScreen() {
 
         <Text style={styles.label}>🌾 Uri ng Palay</Text>
         <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={riceType}
-            onValueChange={setRiceType}
-            style={styles.picker}
-          >
+          <Picker selectedValue={riceType} onValueChange={setRiceType} style={styles.picker}>
             <Picker.Item label="Pumili..." value="" />
             <Picker.Item label="Hybrid" value="hybrid" />
             <Picker.Item label="Inbred" value="inbred" />
@@ -113,11 +119,7 @@ export default function AddFarmerScreen() {
 
         <Text style={styles.label}>💧 Estilo ng Pagtatanim</Text>
         <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={cropStyle}
-            onValueChange={setCropStyle}
-            style={styles.picker}
-          >
+          <Picker selectedValue={cropStyle} onValueChange={setCropStyle} style={styles.picker}>
             <Picker.Item label="Pumili..." value="" />
             <Picker.Item label="Irrigated" value="irrigated" />
             <Picker.Item label="Rainfed" value="rainfed" />
@@ -125,7 +127,6 @@ export default function AddFarmerScreen() {
           </Picker>
         </View>
 
-        {/* Save Button */}
         <TouchableOpacity
           style={[
             styles.saveButton,
@@ -134,25 +135,45 @@ export default function AddFarmerScreen() {
           onPress={handleSave}
           disabled={!(name && location && farmSize && riceType && cropStyle)}
         >
-          <Text style={styles.saveText}>💾 I-save</Text>
+          <Text style={styles.saveText}>💾 Save Farmer</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Cute Success Modal */}
+      <Modal
+        animationType="fade"
+        transparent
+        visible={showSuccessModal}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>Farmer Added!</Text>
+            <Text style={styles.modalMessage}>
+              👤 {name}{'\n'}📍 {location}
+            </Text>
+            <Pressable style={styles.modalButton} onPress={closeModal}>
+              <Text style={styles.modalButtonText}>Continue</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
+// Styles
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5fff5' },
   header: {
     backgroundColor: '#2e7d32',
-    paddingTop: 50,
+    paddingTop: 70,
     paddingBottom: 24,
     paddingHorizontal: 20,
-    borderBottomLeftRadius: 50,
-    borderBottomRightRadius: 50,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 15,
+    gap: 55,
+    bottom: 18,
     elevation: 6,
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -161,18 +182,19 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 20,
+    alignItems: 'center',
     fontWeight: 'bold',
     color: '#fff',
     fontFamily: 'Poppins_700Bold',
   },
   form: {
-    padding: 24,
+    padding: 22,
   },
   label: {
     fontSize: 15,
     fontWeight: '600',
     color: '#2e7d32',
-    marginBottom: 6,
+    marginBottom: 10,
     fontFamily: 'Poppins_600SemiBold',
   },
   input: {
@@ -187,14 +209,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
   },
   pickerWrapper: {
-    borderWidth: 1.2,
+    borderWidth: 1,
     borderColor: '#c1e1c1',
     borderRadius: 10,
     marginBottom: 20,
     backgroundColor: '#fff',
   },
   picker: {
-    height: 48,
+    height: 47,
     fontFamily: 'Poppins_400Regular',
   },
   saveButton: {
@@ -203,11 +225,49 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: 'center',
     elevation: 4,
+    top: 30,
   },
   saveText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
     fontFamily: 'Poppins_600SemiBold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    backgroundColor: '#fff',
+    padding: 24,
+    borderRadius: 16,
+    width: '80%',
+    alignItems: 'center',
+    elevation: 6,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#2e7d32',
+  },
+  modalMessage: {
+    fontSize: 15,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#444',
+  },
+  modalButton: {
+    backgroundColor: '#2e7d32',
+    paddingVertical: 10,
+    paddingHorizontal: 60,
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 15,
   },
 });
